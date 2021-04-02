@@ -22,6 +22,7 @@
 
 import logging
 import os
+import shlex
 import sys
 from time import sleep
 from os.path import exists, isdir, join, sep as pathsep
@@ -233,6 +234,14 @@ class QJackCaptureMainWindow(QDialog):
         arguments.append("-dc")
         arguments.append("-s")
 
+        # Extra arguments
+        extra_args = self.ui.le_extra_args.text().strip()
+
+        if extra_args:
+            arg_list = shlex.split(extra_args)
+            log.debug("Extra args: %r", arg_list)
+            arguments.extend(arg_list)
+
         # Change current directory
         os.chdir(self.ui.le_folder.text())
 
@@ -248,6 +257,7 @@ class QJackCaptureMainWindow(QDialog):
 
             jacklib.transport_locate(self.fJackClient, minTime * self.fSampleRate)
 
+        log.debug("jack_capture command line: %r", arguments)
         self.fProcess.start(gJackCapturePath, arguments)
         self.fProcess.waitForStarted()
 
@@ -381,6 +391,7 @@ class QJackCaptureMainWindow(QDialog):
         settings.setValue("UseTransport", self.ui.group_time.isChecked())
         settings.setValue("StartTime", self.ui.te_start.time())
         settings.setValue("EndTime", self.ui.te_end.time())
+        settings.setValue("ExtraArgs", self.ui.le_extra_args.text().strip())
 
     def loadSettings(self):
         settings = QSettings(ORGANIZATION, PROGRAM)
@@ -422,6 +433,8 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.te_start.setTime(settings.value("StartTime", self.ui.te_start.time(), type=QTime))
         self.ui.te_end.setTime(settings.value("EndTime", self.ui.te_end.time(), type=QTime))
 
+        self.ui.le_extra_args.setText(settings.value("ExtraArgs", "", type=str))
+
     def closeEvent(self, event):
         self.saveSettings()
 
@@ -447,7 +460,7 @@ def main(args=None):
     app.setOrganizationName(ORGANIZATION)
     app.setWindowIcon(QIcon(":/icons//scalable/qjackcapture.svg"))
 
-    logging.basicConfig(level=logging.INFO, format="%(name)s:%(levelname)s: %(message)s")
+    logging.basicConfig(level=logging.DEBUG, format="%(name)s:%(levelname)s: %(message)s")
 
     if jacklib is None:
         QMessageBox.critical(
