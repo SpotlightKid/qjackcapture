@@ -8,7 +8,7 @@ DESTDIR ?= /
 PYTHON ?= python3
 PYUIC ?= pyuic5
 PYRCC ?= pyrcc5
-PYPKG = qjackcapture
+PYPKG = QJackCapture
 PROGRAM = qjackcapture
 
 # -------------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ install-pip:
 # -------------------------------------------------------------------------------------------------
 
 uninstall:
-	$(PYTHON) -m pip unistall $(PYPKG)
+	$(PYTHON) -m pip uninstall $(PYPKG)
 
 # -------------------------------------------------------------------------------------------------
 
