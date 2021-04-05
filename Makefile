@@ -2,10 +2,10 @@
 # Makefile for QJackCapture #
 # ------------------------- #
 
-PREFIX  ?= /usr/local
-DESTDIR =
+PREFIX ?= /usr/local
+DESTDIR ?= /
 
-LINK   = ln -s
+PYTHON ?= python3
 PYUIC ?= pyuic5
 PYRCC ?= pyrcc5
 PYPKG = qjackcapture
@@ -45,17 +45,20 @@ clean:
 # -------------------------------------------------------------------------------------------------
 
 install:
-	pip install .
+	$(PYTHON) setup.py install --prefix=$(PREFIX) --root=$(DESTDIR)
+
+install-pip:
+	$(PYTHON) -m pip install --prefix=$(PREFIX) --root=$(DESTDIR) .
 
 # -------------------------------------------------------------------------------------------------
 
 uninstall:
-	pip unistall $(PYPKG)
+	$(PYTHON) -m pip unistall $(PYPKG)
 
 # -------------------------------------------------------------------------------------------------
 
 dist:
-	python setup.py sdist --format=xztar bdist_wheel
+	$(PYTHON) setup.py sdist --format=xztar bdist_wheel
 
 
 .PHONY: dist
