@@ -316,8 +316,7 @@ class QJackCaptureMainWindow(QDialog):
             arguments.append("-jt")
 
         # Silent mode
-        arguments.append("-dc")
-        arguments.append("-s")
+        arguments.append("--daemon")
 
         # Extra arguments
         extra_args = self.ui.le_extra_args.text().strip()
