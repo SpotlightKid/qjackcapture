@@ -25,13 +25,12 @@ import os
 import shlex
 import sys
 from functools import partial
-from operator import itemgetter
-from os.path import exists, isdir, join, sep as pathsep
+from os.path import exists, isdir, join
 from time import sleep
 
-from PyQt5.QtCore import pyqtSlot, QProcess, Qt, QTime, QTimer, QSettings, QModelIndex
+from PyQt5.QtCore import pyqtSlot, QProcess, QTime, QTimer, QSettings
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QHeaderView, QMessageBox
+from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox
 
 from natsort import humansorted
 
@@ -452,17 +451,6 @@ class QJackCaptureMainWindow(QDialog):
 
             self.checkRecordEnable()
 
-    def checkRecordEnable(self):
-        enable = True
-
-        if self.ui.rb_source_selected.isChecked() and not self.rec_sources:
-            enable = False
-
-        if self.ui.group_time.isChecked() and self.ui.te_end.time() <= self.ui.te_start.time():
-            enable = False
-
-        self.ui.b_render.setEnabled(enable)
-
     @pyqtSlot(bool)
     def slot_toggleRecordingSource(self, dummy=None):
         enabled = self.ui.rb_source_selected.isChecked()
@@ -483,6 +471,17 @@ class QJackCaptureMainWindow(QDialog):
             self.slot_renderStop()
 
         self.fLastTime = time
+
+    def checkRecordEnable(self):
+        enable = True
+
+        if self.ui.rb_source_selected.isChecked() and not self.rec_sources:
+            enable = False
+
+        if self.ui.group_time.isChecked() and self.ui.te_end.time() <= self.ui.te_start.time():
+            enable = False
+
+        self.ui.b_render.setEnabled(enable)
 
     def saveSettings(self):
         settings = QSettings(ORGANIZATION, PROGRAM)
@@ -514,7 +513,7 @@ class QJackCaptureMainWindow(QDialog):
 
         settings.beginWriteArray("Sources")
         for i, (client, port) in enumerate(self.rec_sources):
-            settings.setArrayIndex(i);
+            settings.setArrayIndex(i)
             settings.setValue("Client", client)
             settings.setValue("Port", port)
         settings.endArray()
