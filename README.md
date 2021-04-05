@@ -51,7 +51,8 @@ installation later.
 
 ## License
 
-**QJackCapture** is licensed under the GNU Public License Version v2.
+**QJackCapture** is licensed under the GNU Public License Version v2, or
+any later version.
 
 Please see the file [LICENSE](./LICENSE) for more information.
 
