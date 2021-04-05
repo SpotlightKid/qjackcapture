@@ -24,12 +24,16 @@ import logging
 import os
 import shlex
 import sys
-from time import sleep
+from functools import partial
+from operator import itemgetter
 from os.path import exists, isdir, join, sep as pathsep
+from time import sleep
 
-from PyQt5.QtCore import pyqtSlot, QProcess, QTime, QTimer, QSettings
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox
+from PyQt5.QtCore import pyqtSlot, QProcess, Qt, QTime, QTimer, QSettings, QModelIndex
+from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QHeaderView, QMessageBox
+
+from natsort import humansorted
 
 # -------------------------------------------------------------------------------------------------
 # Application-specific imports
@@ -39,7 +43,7 @@ from .version import __version__
 
 try:
     from . import jacklib
-    from .jacklib_helpers import get_jack_status_error_string
+    from .jacklib_helpers import c_char_p_p_to_list, get_jack_status_error_string
 except ImportError:
     jacklib = None
 
@@ -70,6 +74,14 @@ def get_icon(name, size=16):
 # Main Window
 
 class QJackCaptureMainWindow(QDialog):
+    sample_formats = {
+        "32-bit float": "FLOAT",
+        "8-bit integer": "8",
+        "16-bit integer": "16",
+        "24-bit integer": "24",
+        "32-bit integer": "32",
+    }
+
     def __init__(self, parent, jack_client):
         QDialog.__init__(self, parent)
         self.ui = Ui_MainWindow()
@@ -86,11 +98,15 @@ class QJackCaptureMainWindow(QDialog):
         self.fBufferSize = int(jacklib.get_buffer_size(self.fJackClient))
         self.fSampleRate = int(jacklib.get_sample_rate(self.fJackClient))
 
+        # Selected ports used as recording sources
+        self.rec_sources = set()
+
         self.createUi()
         self.loadSettings()
+        self.populatePortLists()
 
-    def populateFormats(self):
-        # Get List of sample formats
+    def populateFileFormats(self):
+        # Get list of supported file formats
         self.fProcess.start(gJackCapturePath, ["-pf"])
         self.fProcess.waitForFinished()
 
@@ -101,12 +117,71 @@ class QJackCaptureMainWindow(QDialog):
             if fmt:
                 formats.append(fmt)
 
-        # Put all formats in combo-box, select 'wav' option
+        # Put all file formats in combo-box, select 'wav' option
+        self.ui.cb_format.clear()
         for i, fmt in enumerate(sorted(formats)):
             self.ui.cb_format.addItem(fmt)
 
             if fmt == "wav":
                 self.ui.cb_format.setCurrentIndex(i)
+
+    def populateSampleFormats(self):
+        # Put all sample formats in combo-box, select 'FLOAT' option
+        self.ui.cb_depth.clear()
+        for i, (label, fmt) in enumerate(self.sample_formats.items()):
+            self.ui.cb_depth.addItem(label, fmt)
+
+            if fmt == "FLOAT":
+                self.ui.cb_depth.setCurrentIndex(i)
+
+    def populatePortLists(self):
+        output_ports = self.getJackPorts(jacklib.JackPortIsOutput)
+        self.outputs_model = QStandardItemModel(0, 1, self)
+        self.populatePortList(self.outputs_model, self.ui.tree_outputs, output_ports)
+
+        input_ports = self.getJackPorts(jacklib.JackPortIsInput)
+        self.inputs_model = QStandardItemModel(0, 1, self)
+        self.populatePortList(self.inputs_model, self.ui.tree_inputs, input_ports)
+
+        # Remove ports, which are no longer present from recording sources
+        self.rec_sources.intersection_update(set(output_ports) | set(input_ports))
+
+        self.ui.tree_outputs.clicked.connect(partial(self.slot_portSelected, self.outputs_model))
+        self.ui.tree_inputs.clicked.connect(partial(self.slot_portSelected, self.inputs_model))
+
+        self.slot_toggleRecordingSource()
+
+    def populatePortList(self, model, tv, ports):
+        tv.setModel(model)
+        tv.setHeaderHidden(True)
+        root = model.invisibleRootItem()
+
+        portsdict = {}
+        for client, port in ports:
+            if client not in portsdict:
+                portsdict[client] = []
+            portsdict[client].append(port)
+
+        for client in humansorted(portsdict):
+            clientitem = QStandardItem(client)
+
+            for port in humansorted(portsdict[client]):
+                portitem = QStandardItem(port)
+                portitem.setCheckable(True)
+
+                if (client, port) in self.rec_sources:
+                    portitem.setCheckState(True)
+
+                clientitem.appendRow(portitem)
+
+            root.appendRow(clientitem)
+
+        tv.expandAll()
+
+    def getJackPorts(self, type_=jacklib.JackPortIsInput):
+        return [tuple(port.split(':', 1))
+                for port in c_char_p_p_to_list(jacklib.get_ports(self.fJackClient, '',
+                                               jacklib.JACK_DEFAULT_AUDIO_TYPE, type_))]
 
     def createUi(self):
         # -------------------------------------------------------------
@@ -120,11 +195,10 @@ class QJackCaptureMainWindow(QDialog):
             self.ui.cb_buffer_size.addItem(str(self.fBufferSize))
             self.ui.cb_buffer_size.setCurrentIndex(self.ui.cb_buffer_size.count() - 1)
 
-        self.populateFormats()
+        self.populateFileFormats()
+        self.populateSampleFormats()
 
-        self.ui.cb_depth.setCurrentIndex(4)  # Float
         self.ui.rb_stereo.setChecked(True)
-
         self.ui.te_end.setTime(QTime(0, 3, 0))
         self.ui.progressBar.setFormat("")
         self.ui.progressBar.setMinimum(0)
@@ -150,6 +224,9 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.te_start.timeChanged.connect(self.slot_updateStartTime)
         self.ui.te_end.timeChanged.connect(self.slot_updateEndTime)
         self.ui.group_time.clicked.connect(self.slot_transportChecked)
+        self.ui.rb_source_default.toggled.connect(self.slot_toggleRecordingSource)
+        self.ui.rb_source_manual.toggled.connect(self.slot_toggleRecordingSource)
+        self.ui.rb_source_selected.toggled.connect(self.slot_toggleRecordingSource)
         self.fTimer.timeout.connect(self.slot_updateProgressbar)
 
     @pyqtSlot()
@@ -170,7 +247,7 @@ class QJackCaptureMainWindow(QDialog):
         newBufferSize = int(self.ui.cb_buffer_size.currentText())
         useTransport = self.ui.group_time.isChecked()
 
-        self.fFreewheel = bool(self.ui.cb_render_mode.currentIndex() == 1)
+        self.fFreewheel = self.ui.rb_freewheel.isChecked()
         self.fLastTime = -1
         self.fMaxTime = maxTime
 
@@ -205,13 +282,13 @@ class QJackCaptureMainWindow(QDialog):
         arguments.append("-fp")
         arguments.append(self.ui.le_prefix.text())
 
-        # Format
+        # File format
         arguments.append("-f")
         arguments.append(self.ui.cb_format.currentText())
 
-        # Bit depth
+        # Sanple format (bit depth, int/float)
         arguments.append("-b")
-        arguments.append(self.ui.cb_depth.currentText())
+        arguments.append(self.ui.cb_depth.currentData())
 
         # Channels
         arguments.append("-c")
@@ -221,6 +298,14 @@ class QJackCaptureMainWindow(QDialog):
             arguments.append("2")
         else:
             arguments.append(str(self.ui.sb_channels.value()))
+
+        # Recording sources
+        if self.ui.rb_source_manual.isChecked():
+            arguments.append("-mc")
+        elif self.ui.rb_source_selected.isChecked():
+            for client, port in self.rec_sources:
+                arguments.append("-p")
+                arguments.append("{}:{}".format(client, port))
 
         # Controlled only by freewheel
         if self.fFreewheel:
@@ -250,16 +335,20 @@ class QJackCaptureMainWindow(QDialog):
             jacklib.set_buffer_size(self.fJackClient, newBufferSize)
 
         if useTransport:
-            if (
-                jacklib.transport_query(self.fJackClient, None) > jacklib.JackTransportStopped
-            ):  # rolling or starting
+            if jacklib.transport_query(self.fJackClient, None) > jacklib.JackTransportStopped:
+                # rolling or starting
                 jacklib.transport_stop(self.fJackClient)
 
             jacklib.transport_locate(self.fJackClient, minTime * self.fSampleRate)
 
         log.debug("jack_capture command line: %r", arguments)
         self.fProcess.start(gJackCapturePath, arguments)
-        self.fProcess.waitForStarted()
+        status = self.fProcess.waitForStarted()
+
+        if not status:
+            self.fProcess.close()
+            log.error("Could not start jack_capture.")
+            return
 
         if self.fFreewheel:
             log.info("rendering in freewheel mode")
@@ -353,14 +442,38 @@ class QJackCaptureMainWindow(QDialog):
         if self.ui.group_time.isChecked():
             self.ui.b_render.setEnabled(renderEnabled)
 
-    @pyqtSlot(bool)
-    def slot_transportChecked(self, yesNo):
-        if yesNo:
-            renderEnabled = bool(self.ui.te_end.time() > self.ui.te_start.time())
-        else:
-            renderEnabled = True
+    def slot_portSelected(self, model, idx):
+        item = model.itemFromIndex(idx)
+        if item and item.isCheckable():
+            port = (item.parent().text(), item.text())
+            if item.checkState() == 0 and port in self.rec_sources:
+                self.rec_sources.remove(port)
+            elif item.checkState():
+                self.rec_sources.add(port)
 
-        self.ui.b_render.setEnabled(renderEnabled)
+            self.checkRecordEnable()
+
+    def checkRecordEnable(self):
+        enable = True
+
+        if self.ui.rb_source_selected.isChecked() and not self.rec_sources:
+            enable = False
+
+        if self.ui.group_time.isChecked() and self.ui.te_end.time() <= self.ui.te_start.time():
+            enable = False
+
+        self.ui.b_render.setEnabled(enable)
+
+    @pyqtSlot(bool)
+    def slot_toggleRecordingSource(self, dummy=None):
+        enabled = self.ui.rb_source_selected.isChecked()
+        self.ui.tree_outputs.setEnabled(enabled)
+        self.ui.tree_inputs.setEnabled(enabled)
+        self.checkRecordEnable()
+
+    @pyqtSlot(bool)
+    def slot_transportChecked(self, dummy=None):
+        self.checkRecordEnable()
 
     @pyqtSlot()
     def slot_updateProgressbar(self):
@@ -386,12 +499,26 @@ class QJackCaptureMainWindow(QDialog):
         settings.setValue("OutputFolder", self.ui.le_folder.text())
         settings.setValue("FilenamePrefix", self.ui.le_prefix.text())
         settings.setValue("EncodingFormat", self.ui.cb_format.currentText())
-        settings.setValue("EncodingDepth", self.ui.cb_depth.currentText())
+        settings.setValue("EncodingDepth", self.ui.cb_depth.currentData())
         settings.setValue("EncodingChannels", channels)
         settings.setValue("UseTransport", self.ui.group_time.isChecked())
         settings.setValue("StartTime", self.ui.te_start.time())
         settings.setValue("EndTime", self.ui.te_end.time())
         settings.setValue("ExtraArgs", self.ui.le_extra_args.text().strip())
+
+        if self.ui.rb_source_default.isChecked():
+            settings.setValue("RecordingSource", 0)
+        elif self.ui.rb_source_manual.isChecked():
+            settings.setValue("RecordingSource", 1)
+        elif self.ui.rb_source_selected.isChecked():
+            settings.setValue("RecordingSource", 2)
+
+        settings.beginWriteArray("Sources")
+        for i, (client, port) in enumerate(self.rec_sources):
+            settings.setArrayIndex(i);
+            settings.setValue("Client", client)
+            settings.setValue("Port", port)
+        settings.endArray()
 
     def loadSettings(self):
         settings = QSettings(ORGANIZATION, PROGRAM)
@@ -405,17 +532,17 @@ class QJackCaptureMainWindow(QDialog):
 
         self.ui.le_prefix.setText(settings.value("FilenamePrefix", "jack_capture_"))
 
-        encFormat = settings.value("EncodingFormat", "Wav", type=str)
+        encFormat = settings.value("EncodingFormat", "wav", type=str)
 
         for i in range(self.ui.cb_format.count()):
             if self.ui.cb_format.itemText(i) == encFormat:
                 self.ui.cb_format.setCurrentIndex(i)
                 break
 
-        encDepth = settings.value("EncodingDepth", "Float", type=str)
+        encDepth = settings.value("EncodingDepth", "FLOAT", type=str)
 
         for i in range(self.ui.cb_depth.count()):
-            if self.ui.cb_depth.itemText(i) == encDepth:
+            if self.ui.cb_depth.itemData(i) == encDepth:
                 self.ui.cb_depth.setCurrentIndex(i)
                 break
 
@@ -429,11 +556,29 @@ class QJackCaptureMainWindow(QDialog):
             self.ui.rb_outro.setChecked(True)
             self.ui.sb_channels.setValue(encChannels)
 
+        recSource = settings.value("RecordingSource", 0, type=int)
+
+        if recSource == 1:
+            self.ui.rb_source_manual.setChecked(True)
+        elif recSource == 2:
+            self.ui.rb_source_selected.setChecked(True)
+        else:
+            self.ui.rb_source_default.setChecked(True)
+
         self.ui.group_time.setChecked(settings.value("UseTransport", False, type=bool))
         self.ui.te_start.setTime(settings.value("StartTime", self.ui.te_start.time(), type=QTime))
         self.ui.te_end.setTime(settings.value("EndTime", self.ui.te_end.time(), type=QTime))
 
         self.ui.le_extra_args.setText(settings.value("ExtraArgs", "", type=str))
+
+        size = settings.beginReadArray("Sources")
+        for i in range(size):
+            settings.setArrayIndex(i)
+            client = settings.value("Client", type=str)
+            port = settings.value("Port", type=str)
+            if client and port:
+                self.rec_sources.add((client, port))
+        settings.endArray()
 
     def closeEvent(self, event):
         self.saveSettings()
@@ -460,7 +605,7 @@ def main(args=None):
     app.setOrganizationName(ORGANIZATION)
     app.setWindowIcon(QIcon(":/icons//scalable/qjackcapture.svg"))
 
-    logging.basicConfig(level=logging.DEBUG, format="%(name)s:%(levelname)s: %(message)s")
+    logging.basicConfig(level=logging.INFO, format="%(name)s:%(levelname)s: %(message)s")
 
     if jacklib is None:
         QMessageBox.critical(

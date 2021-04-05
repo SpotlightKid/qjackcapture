@@ -30,6 +30,7 @@ setup(
     packages=["qjackcapture"],
     install_requires=[
         'PyQt5',
+        'natsort'
     ],
     entry_points={
         'console_scripts': [

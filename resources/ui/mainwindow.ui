@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>715</width>
-    <height>459</height>
+    <width>1017</width>
+    <height>742</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>JACK Capture</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="2" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -26,111 +26,169 @@
      <property name="title">
       <string>Encoding</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="1" colspan="3">
-       <widget class="QComboBox" name="cb_depth">
-        <item>
-         <property name="text">
-          <string notr="true">8</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">16</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">24</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">32</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">Float</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QSpinBox" name="sb_channels">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimum">
-         <number>3</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QToolButton" name="tb_format">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="QComboBox" name="cb_format"/>
-      </item>
-      <item row="2" column="2">
-       <widget class="QRadioButton" name="rb_outro">
-        <property name="text">
-         <string>Other:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QRadioButton" name="rb_stereo">
-        <property name="text">
-         <string>Stereo</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="lbl_bitdepth">
-        <property name="text">
-         <string>Bit &amp;Depth:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>cb_depth</cstring>
-        </property>
-       </widget>
-      </item>
+     <layout class="QGridLayout" name="grid_encoding">
       <item row="0" column="0">
        <widget class="QLabel" name="lbl_format">
         <property name="text">
-         <string>&amp;Format:</string>
+         <string>Format:</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>cb_format</cstring>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QRadioButton" name="rb_mono">
+       <widget class="QLabel" name="lbl_channels">
         <property name="text">
-         <string>Mono</string>
+         <string>Channels:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>rb_mono</cstring>
         </property>
        </widget>
+      </item>
+      <item row="0" column="1" colspan="6">
+       <layout class="QHBoxLayout" name="hbox_format">
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbl_fileformat">
+          <property name="text">
+           <string>&amp;File:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring>cb_format</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cb_format">
+          <item>
+           <property name="text">
+            <string>aiff</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>flac</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>mp3</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ogg</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>opus</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>wav</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_bitdepth">
+          <property name="text">
+           <string>Sam&amp;ples:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring>cb_depth</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cb_depth">
+          <item>
+           <property name="text">
+            <string>8-bit integer</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>16-bit integer</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>24-bit integer</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>32-bit integer</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>32-bit float</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="1" colspan="6">
+       <layout class="QHBoxLayout" name="hbox_channels">
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QRadioButton" name="rb_mono">
+          <property name="text">
+           <string>&amp;Mono</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rb_stereo">
+          <property name="text">
+           <string>St&amp;ereo</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rb_multi">
+          <property name="text">
+           <string>Mu&amp;lti:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="sb_channels">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimum">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <item row="5" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="hbox_buttons">
      <item>
       <widget class="QProgressBar" name="progressBar">
        <property name="maximum">
@@ -182,19 +240,19 @@
    <item row="1" column="1">
     <widget class="QGroupBox" name="group_time">
      <property name="title">
-      <string>Use Transport</string>
+      <string>&amp;Use Transport</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
+     <layout class="QGridLayout" name="grid_time">
       <item row="0" column="0">
        <widget class="QLabel" name="lbl_start_time">
         <property name="text">
-         <string>&amp;Start Time:</string>
+         <string>St&amp;art Time:</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="buddy">
          <cstring>te_start</cstring>
@@ -214,7 +272,7 @@
          <string>&amp;End Time:</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="buddy">
          <cstring>te_end</cstring>
@@ -250,93 +308,30 @@
      <property name="title">
       <string>Render Options</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
+     <layout class="QGridLayout" name="grid_render">
       <item row="4" column="0">
        <widget class="QLabel" name="lbl_extra_args">
         <property name="text">
-         <string>Extra Arguments:</string>
+         <string>E&amp;xtra Arguments:</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="cb_render_mode">
-        <item>
-         <property name="text">
-          <string>Realtime</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Freewheel</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QComboBox" name="cb_buffer_size">
-        <property name="editable">
-         <bool>true</bool>
+        <property name="buddy">
+         <cstring>le_extra_args</cstring>
         </property>
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <item>
-         <property name="text">
-          <string>32</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>64</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>128</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>256</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>512</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>1024</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2048</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>4096</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>8192</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="lbl_output">
         <property name="text">
-         <string>Output folder:</string>
+         <string>&amp;Output folder:</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>le_folder</cstring>
         </property>
        </widget>
       </item>
@@ -346,52 +341,45 @@
          <string>Render &amp;Mode:</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="buddy">
-         <cstring>cb_render_mode</cstring>
+         <cstring>rb_realtime</cstring>
         </property>
        </widget>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="lbl_filename">
         <property name="text">
-         <string>Filename prefix:</string>
+         <string>File&amp;name prefix:</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="lbl_bufsize">
-        <property name="text">
-         <string>&amp;Buffer Size:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="buddy">
-         <cstring>cb_buffer_size</cstring>
+         <cstring>le_prefix</cstring>
         </property>
        </widget>
       </item>
-      <item row="3" column="1" colspan="3">
+      <item row="3" column="2" colspan="3">
        <widget class="QLineEdit" name="le_prefix">
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
-      <item row="4" column="1" colspan="3">
+      <item row="4" column="2" colspan="3">
        <widget class="QLineEdit" name="le_extra_args">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Extra command line arguments for jack_capture command.&lt;/p&gt;&lt;p&gt;Separate arguments by spaces, use shell quoting rules.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
-      <item row="2" column="1" colspan="3">
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
+      <item row="2" column="2" colspan="3">
+       <layout class="QHBoxLayout" name="hbox_output" stretch="0,0">
         <property name="leftMargin">
          <number>0</number>
         </property>
@@ -407,6 +395,345 @@
            <iconset>
             <normaloff>:/16x16/document-open.png</normaloff>:/16x16/document-open.png</iconset>
           </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="2" colspan="3">
+       <layout class="QHBoxLayout" name="hbox_rendermode">
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QRadioButton" name="rb_realtime">
+          <property name="text">
+           <string>Real&amp;time</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rb_freewheel">
+          <property name="text">
+           <string>Free&amp;wheeling</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_bufsize">
+          <property name="text">
+           <string>&amp;Buffer Size:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring>cb_buffer_size</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cb_buffer_size">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <item>
+           <property name="text">
+            <string>32</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>64</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>128</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>256</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>512</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1024</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2048</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>4096</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>8192</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QGroupBox" name="group_connections">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Recording Source</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMaximumSize</enum>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="hbox_source">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rb_source_default">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture will record signals from any ports connected to the first two physical outputs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Default</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rb_source_manual">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture will not connect to any ports and you need to connect its input ports manually using another program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Manual Connections</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rb_source_selected">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture will record signals from the selected output (source) ports or any ports connected to the selected input (sink) ports.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Selected Ports</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture can connect to any input or output jack port.&lt;/p&gt;&lt;p&gt;When &amp;quot;connecting&amp;quot; to a jack input port (i.e. a writable port), jack_capture constantly monitors which jack ports which are connected to that input port, and makes sure jack_capture is always connected to the same ports.&lt;/p&gt;&lt;p&gt;In other words, jack_capture will reconnect its ports automatically during recording to match the connections of the ports.&lt;/p&gt;&lt;p&gt;This is for instance convenient when recording the playback ports since jack_capture can be started first, and then other programs can start and stop at any moment while all sound still should be recorded.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="../resources.qrc">:/icons/16x16/dialog-information.png</pixmap>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="hbox_connections">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QScrollArea" name="scroll_inputs">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_3">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>483</width>
+             <height>279</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="lbl_inputs">
+              <property name="text">
+               <string>Inputs (Sinks):</string>
+              </property>
+              <property name="margin">
+               <number>6</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="tree_inputs">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QScrollArea" name="scroll_outputs">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_2">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>482</width>
+             <height>279</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="lbl_outputs">
+              <property name="text">
+               <string>Outputs (Sources):</string>
+              </property>
+              <property name="margin">
+               <number>6</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="tree_outputs">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -437,7 +764,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>rb_outro</sender>
+   <sender>rb_multi</sender>
    <signal>toggled(bool)</signal>
    <receiver>sb_channels</receiver>
    <slot>setEnabled(bool)</slot>
