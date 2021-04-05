@@ -323,14 +323,13 @@ class QJackCaptureMainWindow(QDialog):
 
         if extra_args:
             arg_list = shlex.split(extra_args)
-            log.debug("Extra args: %r", arg_list)
             arguments.extend(arg_list)
 
         # Change current directory
         os.chdir(self.ui.le_folder.text())
 
         if newBufferSize != int(jacklib.get_buffer_size(self.fJackClient)):
-            log.info("buffer size changed before render")
+            log.info("Buffer size changed before render.")
             jacklib.set_buffer_size(self.fJackClient, newBufferSize)
 
         if useTransport:
@@ -340,7 +339,7 @@ class QJackCaptureMainWindow(QDialog):
 
             jacklib.transport_locate(self.fJackClient, minTime * self.fSampleRate)
 
-        log.debug("jack_capture command line: %r", arguments)
+        log.debug("jack_capture command line args: %r", arguments)
         self.fProcess.start(gJackCapturePath, arguments)
         status = self.fProcess.waitForStarted()
 
@@ -350,11 +349,12 @@ class QJackCaptureMainWindow(QDialog):
             return
 
         if self.fFreewheel:
-            log.info("rendering in freewheel mode")
+            log.info("Rendering in freewheel mode.")
             sleep(1)
             jacklib.set_freewheel(self.fJackClient, 1)
 
         if useTransport:
+            log.info("Rendering using JACK transport.")
             self.fTimer.start()
             jacklib.transport_start(self.fJackClient)
 
