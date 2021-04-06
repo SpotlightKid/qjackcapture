@@ -14,8 +14,7 @@ To run **QJackCapture**, you need to have the following installed:
 * Python 3 and [PyQt5]
 * [natsort]
 
-To build and install it, you additioanlly need
-
+To build and install it, you additionally need:
 
 * `make`
 * `pyuic5`
