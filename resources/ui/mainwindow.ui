@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>860</width>
+    <width>886</width>
     <height>684</height>
    </rect>
   </property>
@@ -533,19 +533,6 @@
          <number>0</number>
         </property>
         <item>
-         <spacer name="spacer_sources">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
          <widget class="QRadioButton" name="rb_source_default">
           <property name="toolTip">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture will record signals from any ports connected to the first two physical outputs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -587,6 +574,19 @@
            <pixmap resource="../resources.qrc">:/icons/16x16/dialog-information.png</pixmap>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="spacer_sources">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -639,7 +639,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>405</width>
+              <width>418</width>
               <height>223</height>
              </rect>
             </property>
@@ -708,7 +708,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>405</width>
+              <width>418</width>
               <height>223</height>
              </rect>
             </property>
@@ -753,8 +753,6 @@
           </widget>
          </item>
         </layout>
-        <zorder></zorder>
-        <zorder></zorder>
         <zorder>scroll_inputs</zorder>
         <zorder>scroll_outputs</zorder>
        </widget>
