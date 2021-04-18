@@ -31,6 +31,17 @@ from operator import attrgetter
 from os.path import exists, isdir, join
 from time import sleep
 
+# -------------------------------------------------------------------------------------------------
+# Third-party package imports
+
+try:
+    import jacklib
+    from jacklib import JACK_METADATA_ORDER, JACK_METADATA_PORT_GROUP, JACK_METADATA_PRETTY_NAME
+    from jacklib.helpers import c_char_p_p_to_list, get_jack_status_error_string
+except ImportError:
+    jacklib = None
+
+from natsort import humansorted
 
 try:
     from qtpy.QtCore import QObject, QProcess, QTime, QTimer, QSettings, Qt, Signal, Slot
@@ -43,20 +54,11 @@ except ImportError:
     from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
     from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox
 
-from natsort import humansorted
-
 # -------------------------------------------------------------------------------------------------
 # Application-specific imports
 
 from .ui_mainwindow import Ui_MainWindow
 from .version import __version__
-
-try:
-    from . import jacklib
-    from .jacklib import JACK_METADATA_ORDER, JACK_METADATA_PORT_GROUP, JACK_METADATA_PRETTY_NAME
-    from .jacklib_helpers import c_char_p_p_to_list, get_jack_status_error_string
-except ImportError:
-    jacklib = None
 
 
 ORGANIZATION = "chrisarndt.de"
@@ -398,7 +400,7 @@ class QJackCaptureMainWindow(QDialog):
         input_ports = list(self.fJackClient.get_input_ports())
         self.populatePortList(self.inputs_model, self.ui.tree_inputs, input_ports)
 
-        # Remove ports, which are no longer present from recording sources
+        # Remove ports, which are no longer present, from recording sources
         all_ports = set((p.client, p.name) for p in output_ports)
         all_ports |= set((p.client, p.name) for p in input_ports)
         self.rec_sources.intersection_update(all_ports)

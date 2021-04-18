@@ -29,8 +29,9 @@ setup(
     url="https://github.com/SpotlightKid/qjackcapture",
     packages=["qjackcapture"],
     install_requires=[
+        'natsort',
+        'pyjacklib',
         'PyQt5',
-        'natsort'
     ],
     entry_points={
         'console_scripts': [
