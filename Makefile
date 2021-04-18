@@ -8,7 +8,7 @@ DESTDIR ?= /
 PYTHON ?= python3
 PYUIC ?= pyuic5
 PYRCC ?= pyrcc5
-PYPKG = QJackCapture
+PYPKG = qjackcapture
 PROGRAM = qjackcapture
 
 # -------------------------------------------------------------------------------------------------
