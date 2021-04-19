@@ -16,10 +16,13 @@
 # GNU General Public License for more details.
 #
 # For a full copy of the GNU General Public License see the COPYING file
+#
+"""A graphical user interface for jack_capture."""
 
 # -------------------------------------------------------------------------------------------------
 # Standard library imports
 
+import argparse
 import logging
 import os
 import queue
@@ -156,7 +159,7 @@ class QJackCaptureClient(QObject):
                 raise RuntimeError(err)
 
             log.debug("Waiting %.2f seconds to connect again...", self.connect_interval)
-            time.sleep(self.connect_interval)
+            sleep(self.connect_interval)
 
         name = jacklib.get_client_name(self.client)
         if name is not None:
@@ -934,19 +937,26 @@ class QJackCaptureMainWindow(QDialog):
         self.close()
 
 
-# ------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 # Allow to use this as a standalone app
 
-
 def main(args=None):
+    ap = argparse.ArgumentParser(
+        usage=__doc__.splitlines()[0],
+        epilog="You can also pass any command line arguments support by Qt."
+    )
+    ap.add_argument('-d', '--debug', action="store_true", help="Enable debug logging.")
+    cargs, args = ap.parse_known_args(args)
+
     # App initialization
-    app = QApplication(sys.argv if args is None else args)
+    app = QApplication(args)
     app.setApplicationName(PROGRAM)
     app.setApplicationVersion(__version__)
     app.setOrganizationName(ORGANIZATION)
     app.setWindowIcon(QIcon(":/icons//scalable/qjackcapture.svg"))
 
-    logging.basicConfig(level=logging.DEBUG, format="%(name)s:%(levelname)s: %(message)s")
+    logging.basicConfig(level=logging.DEBUG if cargs.debug else logging.INFO,
+                        format="%(name)s:%(levelname)s: %(message)s")
 
     if jacklib is None:
         QMessageBox.critical(
