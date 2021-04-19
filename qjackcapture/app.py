@@ -422,6 +422,16 @@ class QJackCaptureMainWindow(QDialog):
         self.rec_sources.intersection_update(all_ports)
         self.slot_toggleRecordingSource()
 
+    def makePortTooltip(self, port):
+        s = []
+        if port.pretty_name:
+            s.append(f"<b>Pretty name:</b> <em>{port.pretty_name}</em><br>")
+        s.append(f"<b>Port:</b> <tt>{port.client}:{port.name}</tt><br>")
+        for i, alias in enumerate(port.aliases, 1):
+            s.append(f"<b>Alias {i}:</b> <tt>{alias}</tt><br>")
+        s.append(f"<b>UUID:</b> <tt>{port.uuid}</tt>")
+        return "<small>{}</small>".format("\n".join(s))
+
     def populatePortList(self, model, tv, ports):
         tv.setModel(model)
         root = model.invisibleRootItem()
@@ -436,16 +446,22 @@ class QJackCaptureMainWindow(QDialog):
             clientitem = QStandardItem(client)
 
             for port in humansorted(portsdict[client], key=attrgetter("group", "order", "name")):
-                portitem = QStandardItem(port.name)
+                portspec = (port.client, port.name)
+                if port.pretty_name:
+                    label = "%s (%s)" % (port.pretty_name, port.name)
+                else:
+                    label = port.name
+
+                portitem = QStandardItem(label)
+                portitem.setData(portspec)
                 portitem.setCheckable(True)
                 portitem.setUserTristate(False)
                 # Check box toggling is done in the treeview clicked handler "on_port_clicked"
                 portitem.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
 
-                if port.pretty_name is not None:
-                    portitem.setToolTip(port.pretty_name)
+                portitem.setToolTip(self.makePortTooltip(port))
 
-                if (port.client, port.name) in self.rec_sources:
+                if portspec in self.rec_sources:
                     portitem.setCheckState(2)
 
                 clientitem.appendRow(portitem)
@@ -526,7 +542,7 @@ class QJackCaptureMainWindow(QDialog):
 
     def enable_port(self, item, enable=True):
         item.setCheckState(2 if enable else 0)
-        port = (item.parent().text(), item.text())
+        port = item.data()
         if enable:
             self.rec_sources.add(port)
         else:
@@ -811,6 +827,7 @@ class QJackCaptureMainWindow(QDialog):
             enable = False
 
         self.ui.b_render.setEnabled(enable)
+        log.debug("Recording sources: %s", ", ".join(("%s:%s" % (c,p) for c,p in self.rec_sources)))
 
     def saveSettings(self):
         settings = QSettings(ORGANIZATION, PROGRAM)
