@@ -551,7 +551,7 @@ class QJackCaptureMainWindow(QDialog):
         log.debug("on_port_clicked")
         model = index.model()
         item = model.itemFromIndex(index)
-        if model.hasChildren(index):
+        if not model.hasChildren(index):
             self.enable_port(item, not item.checkState())
             self.checkRecordEnable()
 
