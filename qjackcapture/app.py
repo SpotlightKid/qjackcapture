@@ -44,15 +44,26 @@ except ImportError:
 from natsort import humansorted
 
 try:
-    from qtpy.QtCore import QObject, QProcess, QTime, QTimer, QSettings, Qt, Signal, Slot
+    from qtpy.QtCore import (
+        QModelIndex,
+        QObject,
+        QProcess,
+        QPoint,
+        QTime,
+        QTimer,
+        QSettings,
+        Qt,
+        Signal,
+        Slot,
+    )
     from qtpy.QtGui import QIcon, QStandardItemModel, QStandardItem
-    from qtpy.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox
+    from qtpy.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
 except ImportError:
-    from PyQt5.QtCore import QObject, QProcess, QTime, QTimer, QSettings, Qt
+    from PyQt5.QtCore import QModelIndex, QObject, QPoint, QProcess, QTime, QTimer, QSettings, Qt
     from PyQt5.QtCore import pyqtSignal as Signal
     from PyQt5.QtCore import pyqtSlot as Slot
     from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
-    from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox
+    from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
 
 # -------------------------------------------------------------------------------------------------
 # Application-specific imports
@@ -79,6 +90,7 @@ for pathdir in os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin").split(os.pathse
 # -------------------------------------------------------------------------------------------------
 # Uitility functions
 
+
 def get_icon(name, size=16):
     return QIcon.fromTheme(name, QIcon(":/icons/%ix%i/%s.png" % (size, size, name)))
 
@@ -86,22 +98,16 @@ def get_icon(name, size=16):
 # -------------------------------------------------------------------------------------------------
 # JACK client
 
-JackPort = namedtuple("JackPort", [
-    "client",
-    "group",
-    "order",
-    "name",
-    "pretty_name",
-    "uuid",
-    "aliases"
-])
+JackPort = namedtuple(
+    "JackPort", ["client", "group", "order", "name", "pretty_name", "uuid", "aliases"]
+)
 
 
 class QJackCaptureClient(QObject):
     PROPERTY_CHANGE_MAP = {
-        jacklib.PropertyCreated: 'created',
-        jacklib.PropertyChanged: 'changed',
-        jacklib.PropertyDeleted: 'deleted'
+        jacklib.PropertyCreated: "created",
+        jacklib.PropertyChanged: "changed",
+        jacklib.PropertyDeleted: "deleted",
     }
     ports_changed = Signal()
 
@@ -144,8 +150,9 @@ class QJackCaptureClient(QObject):
                 break
 
             if max_attempts and tries >= max_attempts:
-                log.error("Maximum number (%i) of connection attempts reached. Aborting.",
-                          max_attempts)
+                log.error(
+                    "Maximum number (%i) of connection attempts reached. Aborting.", max_attempts
+                )
                 raise RuntimeError(err)
 
             log.debug("Waiting %.2f seconds to connect again...", self.connect_interval)
@@ -158,8 +165,11 @@ class QJackCaptureClient(QObject):
             raise RuntimeError("Could not get JACK client name.")
 
         jacklib.on_shutdown(self.client, self.shutdown_callback, None)
-        log.debug("Client connected, name: %s UUID: %s", self.client_name,
-                  jacklib.client_get_uuid(self.client))
+        log.debug(
+            "Client connected, name: %s UUID: %s",
+            self.client_name,
+            jacklib.client_get_uuid(self.client),
+        )
         jacklib.set_port_registration_callback(self.client, self.port_reg_callback, None)
         jacklib.set_port_rename_callback(self.client, self.port_rename_callback, None)
         jacklib.set_property_change_callback(self.client, self.property_callback, None)
@@ -178,13 +188,12 @@ class QJackCaptureClient(QObject):
     # Callbacks
 
     def error_callback(self, error):
-        error = error.decode(self.default_encoding, errors='ignore')
+        error = error.decode(self.default_encoding, errors="ignore")
         log.debug(error)
 
     def property_callback(self, subject, name, type_, *args):
         if name is not None:
-            name = name.decode(self.default_encoding, errors='ignore')
-
+            name = name.decode(self.default_encoding, errors="ignore")
 
         if not name and type_ == jacklib.PropertyDeleted:
             log.debug("All properties on subject %s deleted.", subject)
@@ -207,10 +216,10 @@ class QJackCaptureClient(QObject):
 
     def port_rename_callback(self, port_id, old_name, new_name, *args):
         if old_name:
-            old_name = old_name.decode(self.default_encoding, errors='ignore')
+            old_name = old_name.decode(self.default_encoding, errors="ignore")
 
         if new_name:
-            new_name = new_name.decode(self.default_encoding, errors='ignore')
+            new_name = new_name.decode(self.default_encoding, errors="ignore")
 
         log.debug("Port name %s changed to %s.", old_name, new_name)
         self._refresh()
@@ -236,13 +245,17 @@ class QJackCaptureClient(QObject):
 
     @lru_cache()
     def _get_port_group(self, port_name):
-        prop = jacklib.get_port_property(self.client, self._get_port(port_name), JACK_METADATA_PORT_GROUP)
+        prop = jacklib.get_port_property(
+            self.client, self._get_port(port_name), JACK_METADATA_PORT_GROUP
+        )
         if prop:
             return int(prop.value)
 
     @lru_cache()
     def _get_port_order(self, port_name):
-        prop = jacklib.get_port_property(self.client, self._get_port(port_name), JACK_METADATA_ORDER)
+        prop = jacklib.get_port_property(
+            self.client, self._get_port(port_name), JACK_METADATA_ORDER
+        )
         if prop:
             try:
                 return int(prop.value)
@@ -260,8 +273,10 @@ class QJackCaptureClient(QObject):
         return aliases[:num_aliases]
 
     def get_ports(self, inout=jacklib.JackPortIsOutput, typeptn=jacklib.JACK_DEFAULT_AUDIO_TYPE):
-        for i, port_name in enumerate(c_char_p_p_to_list(jacklib.get_ports(self.client, '', typeptn, inout))):
-            client, name = port_name.split(':', 1)
+        for i, port_name in enumerate(
+            c_char_p_p_to_list(jacklib.get_ports(self.client, "", typeptn, inout))
+        ):
+            client, name = port_name.split(":", 1)
             uuid = self._get_port_uuid(port_name)
             pretty_name = self._get_port_pretty_name(port_name)
             group = self._get_port_group(port_name)
@@ -312,6 +327,7 @@ class QJackCaptureClient(QObject):
 # -------------------------------------------------------------------------------------------------
 # Main Window
 
+
 class QJackCaptureMainWindow(QDialog):
     sample_formats = {
         "32-bit float": "FLOAT",
@@ -346,10 +362,10 @@ class QJackCaptureMainWindow(QDialog):
 
         # listen to changes to JACK ports
         self._refresh_timer = None
-        self.fJackClient.ports_changed.connect(self.refreshPortsLists)
+        self.fJackClient.ports_changed.connect(self.slot_refreshPortsLists)
 
     @Slot()
-    def refreshPortsLists(self, delay=200):
+    def slot_refreshPortsLists(self, delay=200):
         if not self._refresh_timer or not self._refresh_timer.isActive():
             log.debug("Scheduling port lists refresh in %i ms...", delay)
             self._refresh_timer = QTimer()
@@ -404,15 +420,10 @@ class QJackCaptureMainWindow(QDialog):
         all_ports = set((p.client, p.name) for p in output_ports)
         all_ports |= set((p.client, p.name) for p in input_ports)
         self.rec_sources.intersection_update(all_ports)
-
-        self.ui.tree_outputs.clicked.connect(partial(self.slot_portSelected, self.outputs_model))
-        self.ui.tree_inputs.clicked.connect(partial(self.slot_portSelected, self.inputs_model))
-
         self.slot_toggleRecordingSource()
 
     def populatePortList(self, model, tv, ports):
         tv.setModel(model)
-        tv.setHeaderHidden(True)
         root = model.invisibleRootItem()
 
         portsdict = {}
@@ -424,15 +435,16 @@ class QJackCaptureMainWindow(QDialog):
         for client in humansorted(portsdict):
             clientitem = QStandardItem(client)
 
-            for port in humansorted(portsdict[client], key=attrgetter('group', 'order', 'name')):
+            for port in humansorted(portsdict[client], key=attrgetter("group", "order", "name")):
                 portitem = QStandardItem(port.name)
                 portitem.setCheckable(True)
+                portitem.setUserTristate(False)
 
                 if port.pretty_name is not None:
                     portitem.setToolTip(port.pretty_name)
 
                 if (port.client, port.name) in self.rec_sources:
-                    portitem.setCheckState(True)
+                    portitem.setCheckState(2)
 
                 clientitem.appendRow(portitem)
 
@@ -485,6 +497,73 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.rb_source_manual.toggled.connect(self.slot_toggleRecordingSource)
         self.ui.rb_source_selected.toggled.connect(self.slot_toggleRecordingSource)
         self.fTimer.timeout.connect(self.slot_updateProgressbar)
+
+        for tv in (self.ui.tree_outputs, self.ui.tree_inputs):
+            menu = QMenu()
+            menu.addAction(self.tr("Expand All"), tv.expandAll)
+            menu.addAction(self.tr("Collapse All"), tv.collapseAll)
+            menu.addSeparator()
+            menu.addAction(self.tr("Check all in group"), partial(self.on_select_port_group, tv))
+            menu.addAction(
+                self.tr("Uncheck all in group"),
+                partial(self.on_select_port_group, tv, enable=False),
+            )
+            menu.addSeparator()
+            if tv is self.ui.tree_outputs:
+                menu.addAction(
+                    self.tr("Uncheck all outputs"), partial(self.on_clear_all_ports, tv)
+                )
+            else:
+                menu.addAction(self.tr("Uncheck all inputs"), partial(self.on_clear_all_ports, tv))
+
+            tv.setContextMenuPolicy(Qt.CustomContextMenu)
+            tv.customContextMenuRequested.connect(
+                partial(self.on_port_menu, treeview=tv, menu=menu)
+            )
+            tv.clicked.connect(self.on_port_clicked)
+
+    def enable_port(self, item, enable=True):
+        if item.isCheckable():
+            item.setCheckState(2 if enable else 0)
+            port = (item.parent().text(), item.text())
+            if enable:
+                self.rec_sources.add(port)
+            else:
+                self.rec_sources.discard(port)
+
+    def on_port_menu(self, pos, treeview=None, menu=None):
+        if treeview and menu:
+            action = menu.popup(treeview.viewport().mapToGlobal(pos))
+
+    def foreach_port(self, model, parent, func):
+        for row in range(model.rowCount(parent)):
+            index = model.index(row, 0, parent)
+            func(model.itemFromIndex(index))
+
+            if model.hasChildren(index):
+                self.foreach_port(model, index, func)
+
+    def on_clear_all_ports(self, treeview):
+        self.foreach_port(treeview.model(), QModelIndex(), partial(self.enable_port, enable=False))
+        self.checkRecordEnable()
+
+    def on_port_clicked(self, index):
+        log.debug("on_port_clicked")
+        model = index.model()
+        item = model.itemFromIndex(index)
+        if model.hasChildren(index):
+            self.enable_port(item, not item.checkState())
+            self.checkRecordEnable()
+
+    def on_select_port_group(self, treeview, enable=True):
+        index = treeview.currentIndex()
+        model = index.model()
+
+        if not model.hasChildren(index):
+            index = index.parent()
+
+        self.foreach_port(model, index, partial(self.enable_port, enable=enable))
+        self.checkRecordEnable()
 
     @Slot()
     def slot_renderStart(self):
@@ -646,7 +725,7 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.progressBar.update()
 
         # Restore buffer size
-        newBufferSize = self.fJacKClient.get_buffer_size()
+        newBufferSize = self.fJackClient.get_buffer_size()
 
         if newBufferSize != self.fBufferSize:
             self.fJackClient.set_buffer_size(newBufferSize)
@@ -697,17 +776,6 @@ class QJackCaptureMainWindow(QDialog):
 
         if self.ui.group_time.isChecked():
             self.ui.b_render.setEnabled(renderEnabled)
-
-    def slot_portSelected(self, model, idx):
-        item = model.itemFromIndex(idx)
-        if item and item.isCheckable():
-            port = (item.parent().text(), item.text())
-            if item.checkState() == 0 and port in self.rec_sources:
-                self.rec_sources.remove(port)
-            elif item.checkState():
-                self.rec_sources.add(port)
-
-            self.checkRecordEnable()
 
     @Slot(bool)
     def slot_toggleRecordingSource(self, dummy=None):
@@ -883,7 +951,6 @@ def main(args=None):
         )
         return 2
 
-
     try:
         jack_client = QJackCaptureClient(PROGRAM)
 
@@ -891,9 +958,7 @@ def main(args=None):
         QMessageBox.critical(
             None,
             app.translate(PROGRAM, "Error"),
-            app.translate(
-                PROGRAM, "Could not connect to JACK, possible reasons:\n" "%s" % exc
-            ),
+            app.translate(PROGRAM, "Could not connect to JACK, possible reasons:\n" "%s" % exc),
         )
         return 1
 
