@@ -439,6 +439,8 @@ class QJackCaptureMainWindow(QDialog):
                 portitem = QStandardItem(port.name)
                 portitem.setCheckable(True)
                 portitem.setUserTristate(False)
+                # Check box toggling is done in the treeview clicked handler "on_port_clicked"
+                portitem.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
 
                 if port.pretty_name is not None:
                     portitem.setToolTip(port.pretty_name)
@@ -523,32 +525,33 @@ class QJackCaptureMainWindow(QDialog):
             tv.clicked.connect(self.on_port_clicked)
 
     def enable_port(self, item, enable=True):
-        if item.isCheckable():
-            item.setCheckState(2 if enable else 0)
-            port = (item.parent().text(), item.text())
-            if enable:
-                self.rec_sources.add(port)
-            else:
-                self.rec_sources.discard(port)
+        item.setCheckState(2 if enable else 0)
+        port = (item.parent().text(), item.text())
+        if enable:
+            self.rec_sources.add(port)
+        else:
+            self.rec_sources.discard(port)
 
     def on_port_menu(self, pos, treeview=None, menu=None):
         if treeview and menu:
             action = menu.popup(treeview.viewport().mapToGlobal(pos))
 
-    def foreach_port(self, model, parent, func):
+    def foreach_item(self, model, parent, func, leaves_only=True):
         for row in range(model.rowCount(parent)):
             index = model.index(row, 0, parent)
-            func(model.itemFromIndex(index))
+            is_leaf = not model.hasChildren(index)
 
-            if model.hasChildren(index):
-                self.foreach_port(model, index, func)
+            if is_leaf or not leaves_only:
+                func(model.itemFromIndex(index))
+
+            if not is_leaf:
+                self.foreach_item(model, index, func)
 
     def on_clear_all_ports(self, treeview):
-        self.foreach_port(treeview.model(), QModelIndex(), partial(self.enable_port, enable=False))
+        self.foreach_item(treeview.model(), QModelIndex(), partial(self.enable_port, enable=False))
         self.checkRecordEnable()
 
     def on_port_clicked(self, index):
-        log.debug("on_port_clicked")
         model = index.model()
         item = model.itemFromIndex(index)
         if not model.hasChildren(index):
@@ -562,7 +565,7 @@ class QJackCaptureMainWindow(QDialog):
         if not model.hasChildren(index):
             index = index.parent()
 
-        self.foreach_port(model, index, partial(self.enable_port, enable=enable))
+        self.foreach_item(model, index, partial(self.enable_port, enable=enable))
         self.checkRecordEnable()
 
     @Slot()
