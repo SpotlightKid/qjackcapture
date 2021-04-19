@@ -31,8 +31,7 @@ UI: qjackcapture
 qjackcapture: $(PYPKG)/ui_mainwindow.py \
 	$(PYPKG)/app.py \
 	$(PYPKG)/__main__.py \
-	$(PYPKG)/jacklib.py \
-	$(PYPKG)/jacklib_helpers.py
+	$(PYPKG)/version.py
 
 $(PYPKG)/ui_%.py: resources/ui/%.ui
 	$(PYUIC) --from-imports -o $@ $<
