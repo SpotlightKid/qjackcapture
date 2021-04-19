@@ -12,6 +12,7 @@ To run **QJackCapture**, you need to have the following installed:
 * [JACK] server and library
 * [jack_capture]
 * Python 3 and [PyQt5]
+* [pyjacklib]
 * [natsort]
 
 To build and install it, you additionally need:
@@ -60,7 +61,7 @@ Please see the file [LICENSE](./LICENSE) for more information.
 
 Created by *Filipe Coelho (falkTX)* as part of [Cadence].
 
-Turned into stand-alone project and enhanced by *Christopher Arndt*.
+Turned into a stand-alone project and enhanced by *Christopher Arndt*.
 
 
 [Cadence]: https://github.com/falkTX/Cadence.git
@@ -68,5 +69,6 @@ Turned into stand-alone project and enhanced by *Christopher Arndt*.
 [JACK]: https://jackaudio.org/
 [natsort]: https://github.com/SethMMorton/natsort
 [pip]: https://pypi.org/project/pip/
+[pyjacklib]: https://github.com/jackaudio/pyjacklib
 [PyQt5]: https://www.riverbankcomputing.com/software/pyqt/
 [setuptools]: https://pypi.org/project/setuptools/
