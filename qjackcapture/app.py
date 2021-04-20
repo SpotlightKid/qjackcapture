@@ -94,7 +94,16 @@ for pathdir in os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin").split(os.pathse
 
 
 def get_icon(name, size=16):
+    """Return QIcon from resources given name and, optional, size."""
     return QIcon.fromTheme(name, QIcon(":/icons/%ix%i/%s.png" % (size, size, name)))
+
+
+def posnum(arg):
+    """Make sure that command line arg is a positive number."""
+    value = float(arg)
+    if value < 0:
+        raise argparse.ArgumentTypeError("Value must not be negative!")
+    return value
 
 
 # -------------------------------------------------------------------------------------------------
@@ -339,7 +348,7 @@ class QJackCaptureMainWindow(QDialog):
         "32-bit integer": "32",
     }
 
-    def __init__(self, parent, jack_client):
+    def __init__(self, parent, jack_client, jack_name=PROGRAM):
         QDialog.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -351,6 +360,7 @@ class QJackCaptureMainWindow(QDialog):
         self.fTimer = QTimer(self)
         self.fProcess = QProcess(self)
         self.fJackClient = jack_client
+        self.fJackName = jack_name
 
         self.fBufferSize = self.fJackClient.get_buffer_size()
         self.fSampleRate = self.fJackClient.get_sample_rate()
@@ -645,6 +655,10 @@ class QJackCaptureMainWindow(QDialog):
 
         arguments = []
 
+        # JACK client name
+        arguments.append("-jn")
+        arguments.append(self.fJackName)
+
         # Filename prefix
         arguments.append("-fp")
         arguments.append(self.ui.le_prefix.text())
@@ -884,7 +898,6 @@ class QJackCaptureMainWindow(QDialog):
         self.restoreGeometry(settings.value("Geometry", b""))
 
         outputFolder = settings.value("OutputFolder", get_user_dir("MUSIC"))
-        log.debug("Output folder: %s", outputFolder)
 
         if isdir(outputFolder):
             self.ui.le_folder.setText(outputFolder)
@@ -956,9 +969,38 @@ class QJackCaptureMainWindow(QDialog):
 def main(args=None):
     ap = argparse.ArgumentParser(
         usage=__doc__.splitlines()[0],
-        epilog="You can also pass any command line arguments support by Qt.",
+        epilog="You can also pass any command line arguments supported by Qt.",
     )
-    ap.add_argument("-d", "--debug", action="store_true", help="Enable debug logging.")
+    ap.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Enable debug logging.",
+    )
+    ap.add_argument(
+        "-n",
+        "--client-name",
+        metavar="NAME",
+        default=PROGRAM,
+        help="Set JACK client name to NAME (default: '%(default)s')",
+    )
+    ap.add_argument(
+        "-i",
+        "--connect-interval",
+        type=posnum,
+        default=3.0,
+        metavar="SECONDS",
+        help="Interval between attempts to connect to JACK server " " (default: %(default)s)",
+    )
+    ap.add_argument(
+        "-m",
+        "--max-attempts",
+        type=posnum,
+        default=1,
+        metavar="NUM",
+        help="Max. number of attempts to connect to JACK server "
+        "(0=infinite, default: %(default)s)).",
+    )
     cargs, args = ap.parse_known_args(args)
 
     # App initialization
@@ -997,22 +1039,33 @@ def main(args=None):
         return 2
 
     try:
-        jack_client = QJackCaptureClient(PROGRAM)
-
+        jack_client = QJackCaptureClient(
+            cargs.client_name + "-ui",
+            connect_interval=cargs.connect_interval,
+            connect_max_attempts=cargs.max_attempts,
+        )
+    except KeyboardInterrupt:
+        log.info("Aborted.")
+        return 1
     except Exception as exc:
         QMessageBox.critical(
             None,
             app.translate(PROGRAM, "Error"),
-            app.translate(PROGRAM, "Could not connect to JACK, possible reasons:\n" "%s" % exc),
+            app.translate(
+                PROGRAM,
+                "Could not connect to JACK, possible reasons:\n%s\n\n"
+                "See console log for more information.",
+            )
+            % exc,
         )
         return 1
 
     # Show GUI
-    gui = QJackCaptureMainWindow(None, jack_client)
+    gui = QJackCaptureMainWindow(None, jack_client, cargs.client_name)
     gui.setWindowIcon(get_icon("media-record", 48))
     gui.show()
 
-    # App-Loop
+    # Main loop
     return app.exec_()
 
 
