@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=QJackCapture
+Comment=A GUI for easy recording of JACK audio sources using jack_capture
+Exec=qjackcapture
+Icon=qjackcapture
+Terminal=false
+StartupNotify=false
+Categories=Application;AudioVideo;Audio;

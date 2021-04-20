@@ -5,11 +5,15 @@
 PREFIX ?= /usr/local
 DESTDIR ?= /
 
+INSTALL ?= install
 PYTHON ?= python3
 PYUIC ?= pyuic5
 PYRCC ?= pyrcc5
 PYPKG = qjackcapture
 PROGRAM = qjackcapture
+TWINE ?= twine
+ICON = resources/icons/48x48/$(PROGRAM).png
+DESKTOP_FILE = resources/xdg/$(PROGRAM).desktop
 
 # -------------------------------------------------------------------------------------------------
 
@@ -43,10 +47,22 @@ clean:
 
 # -------------------------------------------------------------------------------------------------
 
-install:
+install-data:
+	$(INSTALL) -Dm644 $(ICON) -t $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/48x48/apps
+	$(INSTALL) -Dm644 $(DESKTOP_FILE) -t $(DESTDIR:/=)$(PREFIX)/share/applications
+	@if [ -z "$(DESTDIR)" ]; then \
+		echo "Updating desktop menu..."; \
+		update-desktop-database -q; \
+	fi
+	@if [ -z "$(DESTDIR)" ]; then \
+		echo "Updating icon cache..."; \
+		gtk-update-icon-cache -q $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor; \
+	fi
+
+install: install-data
 	$(PYTHON) setup.py install --prefix=$(PREFIX) --root=$(DESTDIR)
 
-install-pip:
+install-pip: install-data
 	$(PYTHON) -m pip install --prefix=$(PREFIX) --root=$(DESTDIR) .
 
 # -------------------------------------------------------------------------------------------------
@@ -56,8 +72,16 @@ uninstall:
 
 # -------------------------------------------------------------------------------------------------
 
-dist:
-	$(PYTHON) setup.py sdist --format=xztar bdist_wheel
+dist: sdist wheel
+
+sdist: RES UI
+	$(PYTHON) setup.py sdist --formats=xztar
+
+wheel: RES UI
+	$(PYTHON) setup.py bdist_wheel
+
+pypi-upload: sdist wheel
+	$(TWINE) upload --skip-existing dist/*.tar.xz dist/*.whl
 
 
-.PHONY: dist
+.PHONY: all dist install install-data install-pip pypi-upload sdist uninstall wheel

@@ -1,6 +1,6 @@
 # QJackCapture
 
-A GUI for [jack_capture] using PyQt5.
+A GUI for easy recording of [JACK] audio sources using [jack_capture].
 
 ![QJackCapture screenshot](resources/screenshots/qjackcapture.png)
 
@@ -44,9 +44,8 @@ The install commands respect the usual `PREFIX` and `DESTDIR` variables.
 
 ## Running
 
-For now, after installation, just run `qjackcapture` from a terminal or your
-preferred launcher. An XDG `.desktop` menu file and icon will be added to the
-installation later.
+After installation, just use you desktop menu to start QJackCapture or run
+`qjackcapture` from a terminal or your preferred launcher.
 
 
 ## License
@@ -54,7 +53,7 @@ installation later.
 **QJackCapture** is licensed under the GNU Public License Version v2, or
 any later version.
 
-Please see the file [LICENSE](./LICENSE) for more information.
+Please see the file [LICENSE] for more information.
 
 
 ## Authors
@@ -67,6 +66,7 @@ Turned into a stand-alone project and enhanced by *Christopher Arndt*.
 [Cadence]: https://github.com/falkTX/Cadence.git
 [jack_capture]: https://github.com/kmatheussen/jack_capture
 [JACK]: https://jackaudio.org/
+[LICENSE]: https://github.com/SpotlightKid/qjackcapture/blob/master/LICENSE
 [natsort]: https://github.com/SethMMorton/natsort
 [pip]: https://pypi.org/project/pip/
 [pyjacklib]: https://github.com/jackaudio/pyjacklib

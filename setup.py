@@ -2,7 +2,7 @@
 #
 # setup.py
 #
-"""A GUI for jack_capture."""
+"""A GUI for easy recording of JACK audio sources using jack_capture."""
 
 from os.path import join
 from setuptools import setup
