@@ -31,7 +31,7 @@ import sys
 from collections import namedtuple
 from functools import lru_cache, partial
 from operator import attrgetter
-from os.path import expanduser, exists, isdir, join
+from os.path import exists, expanduser, isdir, join
 from time import sleep
 
 # -------------------------------------------------------------------------------------------------
@@ -51,20 +51,20 @@ try:
         QModelIndex,
         QObject,
         QProcess,
-        QTime,
-        QTimer,
         QSettings,
         Qt,
+        QTime,
+        QTimer,
         Signal,
         Slot,
     )
-    from qtpy.QtGui import QIcon, QStandardItemModel, QStandardItem
+    from qtpy.QtGui import QIcon, QStandardItem, QStandardItemModel
     from qtpy.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
 except ImportError:
-    from PyQt5.QtCore import QModelIndex, QObject, QProcess, QTime, QTimer, QSettings, Qt
+    from PyQt5.QtCore import QModelIndex, QObject, QProcess, QSettings, Qt, QTime, QTimer
     from PyQt5.QtCore import pyqtSignal as Signal
     from PyQt5.QtCore import pyqtSlot as Slot
-    from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
+    from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
     from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
 
 # -------------------------------------------------------------------------------------------------
@@ -73,7 +73,6 @@ except ImportError:
 from .ui_mainwindow import Ui_MainWindow
 from .userdirs import get_user_dir
 from .version import __version__
-
 
 ORGANIZATION = "chrisarndt.de"
 PROGRAM = "QJackCapture"
@@ -91,7 +90,8 @@ for pathdir in os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin").split(os.pathse
 
 
 # -------------------------------------------------------------------------------------------------
-# Uitility functions
+# Utility functions
+
 
 def get_icon(name, size=16):
     return QIcon.fromTheme(name, QIcon(":/icons/%ix%i/%s.png" % (size, size, name)))

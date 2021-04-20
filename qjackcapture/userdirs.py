@@ -31,8 +31,8 @@ def get_user_dir(name=None):
                 value = value.replace("${HOME}", homedir)
 
                 if (
-                    value.startswith('"') and value.endswith('"') or
-                    value.startswith("'") and value.endswith("'")
+                    (value.startswith('"') and value.endswith('"'))
+                    or (value.startswith("'") and value.endswith("'"))
                 ):
                     value = value[1:-1]
 
@@ -46,6 +46,7 @@ def get_user_dir(name=None):
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     print(get_user_dir(sys.argv[1] if len(sys.argv) > 1 else None))
