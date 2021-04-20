@@ -1,0 +1,7 @@
+include LICENSE
+include Makefile
+recursive-include resources/screenshots *.png
+recursive-include resources/xdg *.desktop
+recursive-include resources/icons *.png *.svg
+recursive-include resources *.qrc
+recursive-include resources/ui *.ui
