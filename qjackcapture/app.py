@@ -521,21 +521,32 @@ class QJackCaptureMainWindow(QDialog):
 
         for tv in (self.ui.tree_outputs, self.ui.tree_inputs):
             menu = QMenu()
-            menu.addAction(self.tr("Expand All"), tv.expandAll)
-            menu.addAction(self.tr("Collapse All"), tv.collapseAll)
+            menu.addAction(get_icon("expand-all"), self.tr("E&xpand all"), tv.expandAll)
+            menu.addAction(get_icon("collapse-all"), self.tr("&Collapse all"), tv.collapseAll)
             menu.addSeparator()
-            menu.addAction(self.tr("Check all in group"), partial(self.on_select_port_group, tv))
             menu.addAction(
-                self.tr("Uncheck all in group"),
+                get_icon("list-select-all"),
+                self.tr("&Select all in group"),
+                partial(self.on_select_port_group, tv),
+            )
+            menu.addAction(
+                get_icon("list-select-none"),
+                self.tr("&Unselect all in group"),
                 partial(self.on_select_port_group, tv, enable=False),
             )
             menu.addSeparator()
             if tv is self.ui.tree_outputs:
                 menu.addAction(
-                    self.tr("Uncheck all outputs"), partial(self.on_clear_all_ports, tv)
+                    get_icon("select-none"),
+                    self.tr("Unselect all &outputs"),
+                    partial(self.on_clear_all_ports, tv),
                 )
             else:
-                menu.addAction(self.tr("Uncheck all inputs"), partial(self.on_clear_all_ports, tv))
+                menu.addAction(
+                    get_icon("select-none"),
+                    self.tr("Unselect all &inputs"),
+                    partial(self.on_clear_all_ports, tv),
+                )
 
             tv.setContextMenuPolicy(Qt.CustomContextMenu)
             tv.customContextMenuRequested.connect(
@@ -830,7 +841,9 @@ class QJackCaptureMainWindow(QDialog):
             enable = False
 
         self.ui.b_render.setEnabled(enable)
-        log.debug("Recording sources: %s", ", ".join(("%s:%s" % (c,p) for c,p in self.rec_sources)))
+        log.debug(
+            "Recording sources: %s", ", ".join(("%s:%s" % (c, p) for c, p in self.rec_sources))
+        )
 
     def saveSettings(self):
         settings = QSettings(ORGANIZATION, PROGRAM)
@@ -940,12 +953,13 @@ class QJackCaptureMainWindow(QDialog):
 # -------------------------------------------------------------------------------------------------
 # Allow to use this as a standalone app
 
+
 def main(args=None):
     ap = argparse.ArgumentParser(
         usage=__doc__.splitlines()[0],
-        epilog="You can also pass any command line arguments support by Qt."
+        epilog="You can also pass any command line arguments support by Qt.",
     )
-    ap.add_argument('-d', '--debug', action="store_true", help="Enable debug logging.")
+    ap.add_argument("-d", "--debug", action="store_true", help="Enable debug logging.")
     cargs, args = ap.parse_known_args(args)
 
     # App initialization
@@ -955,8 +969,10 @@ def main(args=None):
     app.setOrganizationName(ORGANIZATION)
     app.setWindowIcon(QIcon(":/icons//scalable/qjackcapture.svg"))
 
-    logging.basicConfig(level=logging.DEBUG if cargs.debug else logging.INFO,
-                        format="%(name)s:%(levelname)s: %(message)s")
+    logging.basicConfig(
+        level=logging.DEBUG if cargs.debug else logging.INFO,
+        format="%(name)s:%(levelname)s: %(message)s",
+    )
 
     if jacklib is None:
         QMessageBox.critical(

@@ -1,5 +1,10 @@
 <RCC>
   <qresource prefix="/">
+    <file>icons/16x16/collapse-all.png</file>
+    <file>icons/16x16/expand-all.png</file>
+    <file>icons/16x16/list-select-all.png</file>
+    <file>icons/16x16/list-select-none.png</file>
+    <file>icons/16x16/select-none.png</file>
     <file>icons/16x16/dialog-information.png</file>
     <file>icons/16x16/document-open.png</file>
     <file>icons/16x16/media-playback-pause.png</file>
