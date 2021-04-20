@@ -31,7 +31,7 @@ import sys
 from collections import namedtuple
 from functools import lru_cache, partial
 from operator import attrgetter
-from os.path import exists, isdir, join
+from os.path import expanduser, exists, isdir, join
 from time import sleep
 
 # -------------------------------------------------------------------------------------------------
@@ -51,7 +51,6 @@ try:
         QModelIndex,
         QObject,
         QProcess,
-        QPoint,
         QTime,
         QTimer,
         QSettings,
@@ -62,7 +61,7 @@ try:
     from qtpy.QtGui import QIcon, QStandardItemModel, QStandardItem
     from qtpy.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
 except ImportError:
-    from PyQt5.QtCore import QModelIndex, QObject, QPoint, QProcess, QTime, QTimer, QSettings, Qt
+    from PyQt5.QtCore import QModelIndex, QObject, QProcess, QTime, QTimer, QSettings, Qt
     from PyQt5.QtCore import pyqtSignal as Signal
     from PyQt5.QtCore import pyqtSlot as Slot
     from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
@@ -72,6 +71,7 @@ except ImportError:
 # Application-specific imports
 
 from .ui_mainwindow import Ui_MainWindow
+from .userdirs import get_user_dir
 from .version import __version__
 
 
@@ -92,7 +92,6 @@ for pathdir in os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin").split(os.pathse
 
 # -------------------------------------------------------------------------------------------------
 # Uitility functions
-
 
 def get_icon(name, size=16):
     return QIcon.fromTheme(name, QIcon(":/icons/%ix%i/%s.png" % (size, size, name)))
@@ -500,8 +499,7 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.b_close.setIcon(get_icon("window-close"))
         self.ui.b_open.setIcon(get_icon("document-open"))
         self.ui.b_stop.setVisible(False)
-        # XXX use x-platform media dir as default
-        self.ui.le_folder.setText(os.getenv("HOME"))
+        self.ui.le_folder.setText(expanduser("~"))
 
         # -------------------------------------------------------------
         # Set-up connections
@@ -564,7 +562,7 @@ class QJackCaptureMainWindow(QDialog):
 
     def on_port_menu(self, pos, treeview=None, menu=None):
         if treeview and menu:
-            action = menu.popup(treeview.viewport().mapToGlobal(pos))
+            menu.popup(treeview.viewport().mapToGlobal(pos))
 
     def foreach_item(self, model, parent, func, leaves_only=True):
         for row in range(model.rowCount(parent)):
@@ -885,7 +883,8 @@ class QJackCaptureMainWindow(QDialog):
 
         self.restoreGeometry(settings.value("Geometry", b""))
 
-        outputFolder = settings.value("OutputFolder", os.getenv("HOME"))
+        outputFolder = settings.value("OutputFolder", get_user_dir("MUSIC"))
+        log.debug("Output folder: %s", outputFolder)
 
         if isdir(outputFolder):
             self.ui.le_folder.setText(outputFolder)
