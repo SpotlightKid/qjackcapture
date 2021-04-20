@@ -30,9 +30,8 @@ def get_user_dir(name=None):
                 value = value.replace("$HOME", homedir)
                 value = value.replace("${HOME}", homedir)
 
-                if (
-                    (value.startswith('"') and value.endswith('"'))
-                    or (value.startswith("'") and value.endswith("'"))
+                if (value.startswith('"') and value.endswith('"')) or (
+                    value.startswith("'") and value.endswith("'")
                 ):
                     value = value[1:-1]
 
