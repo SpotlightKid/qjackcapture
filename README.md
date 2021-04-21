@@ -44,8 +44,9 @@ The install commands respect the usual `PREFIX` and `DESTDIR` variables.
 
 ## Running
 
-After installation, just use you desktop menu to start QJackCapture or run
-`qjackcapture` from a terminal or your preferred launcher.
+After installation, make sure that the JACK server is running and then just use
+your desktop menu to start QJackCapture or run `qjackcapture` from a terminal
+or your preferred launcher.
 
 
 ## License
@@ -58,7 +59,7 @@ Please see the file [LICENSE] for more information.
 
 ## Authors
 
-Created by *Filipe Coelho (falkTX)* as part of [Cadence].
+Created by *Filipe Coelho (falkTX)* as the "Render" tool part of [Cadence].
 
 Turned into a stand-alone project and enhanced by *Christopher Arndt*.
 
