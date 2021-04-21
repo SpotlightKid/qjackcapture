@@ -75,13 +75,13 @@ uninstall:
 dist: sdist wheel
 
 sdist: RES UI
-	$(PYTHON) setup.py sdist --formats=xztar
+	$(PYTHON) setup.py sdist --formats=gztar,xztar
 
 wheel: RES UI
 	$(PYTHON) setup.py bdist_wheel
 
 pypi-upload: sdist wheel
-	$(TWINE) upload --skip-existing dist/*.tar.xz dist/*.whl
+	$(TWINE) upload --skip-existing dist/*.tar.gz dist/*.whl
 
 
 .PHONY: all dist install install-data install-pip pypi-upload sdist uninstall wheel
