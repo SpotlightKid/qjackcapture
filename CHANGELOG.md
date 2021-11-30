@@ -1,8 +1,21 @@
 # Changelog
 
+
+## Version 0.10.1 (2021-11-30)
+
+Bugfix release
+
+
+# Fixes
+
+* Exception due to reference to wrong widget name when applying settings from
+  QSettings file.
+
+
 ## Version 0.10.0 (2021-04-21)
 
 Initial release as a stand-alone project
+
 
 ### New features
 
