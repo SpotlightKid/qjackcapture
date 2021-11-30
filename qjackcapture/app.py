@@ -925,7 +925,7 @@ class QJackCaptureMainWindow(QDialog):
         elif encChannels == 2:
             self.ui.rb_stereo.setChecked(True)
         else:
-            self.ui.rb_outro.setChecked(True)
+            self.ui.rb_multi.setChecked(True)
             self.ui.sb_channels.setValue(encChannels)
 
         recSource = settings.value("RecordingSource", 0, type=int)
