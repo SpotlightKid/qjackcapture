@@ -371,6 +371,7 @@ class QJackCaptureMainWindow(QDialog):
         self.createUi()
         self.loadSettings()
         self.populatePortLists(init=True)
+        self.checkSupportedOptions()
 
         # listen to changes to JACK ports
         self._refresh_timer = None
@@ -384,6 +385,15 @@ class QJackCaptureMainWindow(QDialog):
             self._refresh_timer.setSingleShot(True)
             self._refresh_timer.timeout.connect(self.populatePortLists)
             self._refresh_timer.start(delay)
+
+    def checkSupportedOptions(self):
+        # Get help text to check for existence of options missing in older jack_capture versions
+        self.fProcess.start(gJackCapturePath, ["--help2"])
+        self.fProcess.waitForFinished()
+        help_text = str(self.fProcess.readAllStandardOutput(), "utf-8")
+        self.supportedOptions = {}
+        self.supportedOptions["jack-name"] = "[-jn]" in help_text
+        log.debug("Options supported by jack_capture: %s", self.supportedOptions)
 
     def populateFileFormats(self):
         # Get list of supported file formats
@@ -656,8 +666,9 @@ class QJackCaptureMainWindow(QDialog):
         arguments = []
 
         # JACK client name
-        arguments.append("-jn")
-        arguments.append(self.fJackName)
+        if self.supportedOptions.get("jack-name"):
+            arguments.append("-jn")
+            arguments.append(self.fJackName)
 
         # Filename prefix
         arguments.append("-fp")
