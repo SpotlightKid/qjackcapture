@@ -434,9 +434,9 @@ class QJackCaptureMainWindow(QDialog):
             self.inputs_model.clear()
 
         output_ports = list(self.fJackClient.get_output_ports())
-        self.populatePortList(self.outputs_model, self.ui.tree_outputs, output_ports)
+        self.output_ports = self.populatePortList(self.outputs_model, self.ui.tree_outputs, output_ports)
         input_ports = list(self.fJackClient.get_input_ports())
-        self.populatePortList(self.inputs_model, self.ui.tree_inputs, input_ports)
+        self.input_ports = self.populatePortList(self.inputs_model, self.ui.tree_inputs, input_ports)
 
         # Remove ports, which are no longer present, from recording sources
         all_ports = set((p.client, p.name) for p in output_ports)
@@ -466,8 +466,9 @@ class QJackCaptureMainWindow(QDialog):
 
         for client in humansorted(portsdict):
             clientitem = QStandardItem(client)
+            portsdict[client] = humansorted(portsdict[client], key=attrgetter("group", "order", "pretty_name", "name"))
 
-            for port in humansorted(portsdict[client], key=attrgetter("group", "order", "name")):
+            for port in portsdict[client]:
                 portspec = (port.client, port.name)
                 if port.pretty_name:
                     label = "%s (%s)" % (port.pretty_name, port.name)
@@ -491,6 +492,7 @@ class QJackCaptureMainWindow(QDialog):
             root.appendRow(clientitem)
 
         tv.expandAll()
+        return portsdict
 
     def createUi(self):
         # -------------------------------------------------------------
@@ -695,9 +697,12 @@ class QJackCaptureMainWindow(QDialog):
         if self.ui.rb_source_manual.isChecked():
             arguments.append("-mc")
         elif self.ui.rb_source_selected.isChecked():
-            for client, port in self.rec_sources:
-                arguments.append("-p")
-                arguments.append("{}:{}".format(client, port))
+            for ports in (self.output_ports, self.input_ports):
+                for client in humansorted(ports):
+                    for port in ports[client]:
+                        if (port.client, port.name) in self.rec_sources:
+                            arguments.append("-p")
+                            arguments.append("{}:{}".format(port.client, port.name))
 
         # Controlled only by freewheel
         if self.fFreewheel:
