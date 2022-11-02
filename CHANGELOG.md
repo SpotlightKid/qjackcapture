@@ -1,6 +1,23 @@
 # Changelog
 
 
+## Version 0.2.0 (2022-11-02)
+
+Bugfixes and build system changes
+
+
+### Fixes
+
+* Maintain port order on `jack_capture` command line. For multi-channel output
+  files, this should result in channels being in a sensible order.
+
+
+### Changes
+
+* Moved project and packaging meta data to `setup.cfg`, making the project more
+  compliant with [PEP 517].
+
+
 ## Version 0.1.2 (2022-03-24)
 
 Bugfix release
@@ -59,3 +76,4 @@ Initial release as a stand-alone project
 
 
 [pyjacklib]: https://github.com/jackaudio/pyjacklib
+[PEP 517]: https://peps.python.org/pep-0517/
