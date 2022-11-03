@@ -48,8 +48,10 @@ clean:
 # -------------------------------------------------------------------------------------------------
 
 install-data:
-	$(INSTALL) -Dm644 $(ICON) -t $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/48x48/apps
-	$(INSTALL) -Dm644 $(DESKTOP_FILE) -t $(DESTDIR:/=)$(PREFIX)/share/applications
+	$(INSTALL) -dm755  $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/48x48/apps
+	$(INSTALL) -m644 $(ICON) $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/48x48/apps
+	$(INSTALL) -dm755 $(DESTDIR:/=)$(PREFIX)/share/applications
+	$(INSTALL) -m644 $(DESKTOP_FILE) -t $(DESTDIR:/=)$(PREFIX)/share/applications
 	@if [ -z "$(DESTDIR)" ]; then \
 		echo "Updating desktop menu..."; \
 		update-desktop-database -q; \
