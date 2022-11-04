@@ -3,7 +3,7 @@
 
 # JACK-Capture frontend, with freewheel and transport support
 # Copyright (C) 2010-2018 Filipe Coelho <falktx@falktx.com>
-# Copyright (C) 2020-2021 Christopher Arndt <info@chrisarndt.de>
+# Copyright (C) 2020-2022 Christopher Arndt <info@chrisarndt.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
