@@ -434,9 +434,13 @@ class QJackCaptureMainWindow(QDialog):
             self.inputs_model.clear()
 
         output_ports = list(self.fJackClient.get_output_ports())
-        self.output_ports = self.populatePortList(self.outputs_model, self.ui.tree_outputs, output_ports)
+        self.output_ports = self.populatePortList(
+            self.outputs_model, self.ui.tree_outputs, output_ports
+        )
         input_ports = list(self.fJackClient.get_input_ports())
-        self.input_ports = self.populatePortList(self.inputs_model, self.ui.tree_inputs, input_ports)
+        self.input_ports = self.populatePortList(
+            self.inputs_model, self.ui.tree_inputs, input_ports
+        )
 
         # Remove ports, which are no longer present, from recording sources
         all_ports = set((p.client, p.name) for p in output_ports)
@@ -466,7 +470,9 @@ class QJackCaptureMainWindow(QDialog):
 
         for client in humansorted(portsdict):
             clientitem = QStandardItem(client)
-            portsdict[client] = humansorted(portsdict[client], key=attrgetter("group", "order", "pretty_name", "name"))
+            portsdict[client] = humansorted(
+                portsdict[client], key=attrgetter("group", "order", "pretty_name", "name")
+            )
 
             for port in portsdict[client]:
                 portspec = (port.client, port.name)
@@ -1006,7 +1012,7 @@ def main(args=None):
         type=posnum,
         default=3.0,
         metavar="SECONDS",
-        help="Interval between attempts to connect to JACK server " " (default: %(default)s)",
+        help="Interval between attempts to connect to JACK server (default: %(default)s)",
     )
     ap.add_argument(
         "-m",
