@@ -24,7 +24,7 @@
    <item row="1" column="0">
     <widget class="QGroupBox" name="group_encoding">
      <property name="title">
-      <string>Encoding</string>
+      <string>Output File Encoding</string>
      </property>
      <layout class="QGridLayout" name="grid_encoding">
       <item row="0" column="0">
@@ -205,7 +205,7 @@
      <item>
       <widget class="QPushButton" name="b_render">
        <property name="text">
-        <string>&amp;Render</string>
+        <string>&amp;Record</string>
        </property>
        <property name="icon">
         <iconset resource="../resources.qrc">
@@ -568,7 +568,7 @@
         <item>
          <widget class="QLabel" name="icon_source_help">
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture can connect to any input or output jack port.&lt;/p&gt;&lt;p&gt;When &amp;quot;connecting&amp;quot; to a jack input port (i.e. a writable port), jack_capture constantly monitors which jack ports which are connected to that input port, and makes sure jack_capture is always connected to the same ports.&lt;/p&gt;&lt;p&gt;In other words, jack_capture will reconnect its ports automatically during recording to match the connections of the ports.&lt;/p&gt;&lt;p&gt;This is for instance convenient when recording the playback ports since jack_capture can be started first, and then other programs can start and stop at any moment while all sound still should be recorded.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture can connect to any input or output jack port.&lt;/p&gt;&lt;p&gt;When &amp;quot;connecting&amp;quot; to a jack input port (i.e. a writable port), jack_capture constantly monitors which jack ports are connected to that input port, and makes sure jack_capture is always connected to the same ports.&lt;/p&gt;&lt;p&gt;In other words, jack_capture will reconnect its ports automatically during recording to match the connections of the ports.&lt;/p&gt;&lt;p&gt;This is convenient, for instance, when recording the playback ports, since jack_capture can be started first, and then other programs can start and stop at any moment while all sound still should be recorded.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="pixmap">
            <pixmap resource="../resources.qrc">:/icons/16x16/dialog-information.png</pixmap>
