@@ -1,6 +1,26 @@
 # Changelog
 
 
+## Version 0.2.1 (2022-11-04)
+
+Bugfixes and minor UI changes
+
+
+### Fixes
+
+* Use cross-platform compatible `install` commands in Makefile.
+* Show error dialog and abort when unable to get supported file formats from
+  `jack_capture`.
+* Fixed grammar errors in recording sources help text.
+
+
+### Changes
+
+* Changed label of "Render" button to "Record".
+* Changed labels of button in error dialogs from "Ok" to "Close".
+* Changed label of "Encoding" UI group to "Output File Encoding".
+
+
 ## Version 0.2.0 (2022-11-02)
 
 Bugfixes and build system changes
