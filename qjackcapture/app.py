@@ -90,6 +90,16 @@ for pathdir in os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin").split(os.pathse
 
 
 # -------------------------------------------------------------------------------------------------
+# Custom exceptions
+
+
+class JackCaptureUnsupportedError(Exception):
+    """Raised when external jack_capture program version is not supported."""
+
+    pass
+
+
+# -------------------------------------------------------------------------------------------------
 # Utility functions
 
 
@@ -400,12 +410,24 @@ class QJackCaptureMainWindow(QDialog):
         self.fProcess.start(gJackCapturePath, ["-pf"])
         self.fProcess.waitForFinished()
 
+        if self.fProcess.exitCode() != 0:
+            raise JackCaptureUnsupportedError(
+                self.tr("Could not get list of supported output formats from jack_capture.")
+            )
+
         formats = []
 
-        for fmt in str(self.fProcess.readAllStandardOutput(), encoding="utf-8").split():
+        for fmt in str(self.fProcess.readAllStandardOutput(), encoding="utf-8").strip().split():
             fmt = fmt.strip()
             if fmt:
                 formats.append(fmt)
+
+        log.debug("File formats supported by jack_capture: %s", formats)
+
+        if not formats:
+            raise JackCaptureUnsupportedError(
+                self.tr("List of supported output formats reported by jack_capture is empty.")
+            )
 
         # Put all file formats in combo-box, select 'wav' option
         self.ui.cb_format.clear()
@@ -1083,7 +1105,20 @@ def main(args=None):
         return 1
 
     # Show GUI
-    gui = QJackCaptureMainWindow(None, jack_client, cargs.client_name)
+    try:
+        gui = QJackCaptureMainWindow(None, jack_client, cargs.client_name)
+    except JackCaptureUnsupportedError as exc:
+        QMessageBox.critical(
+            None,
+            app.translate(PROGRAM, "Error"),
+            app.translate(
+                PROGRAM, "The 'jack_capture' application found is not compatible.\n\nReason: %s"
+            )
+            % exc,
+            QMessageBox.Close,
+        )
+        return 1
+
     gui.setWindowIcon(get_icon("media-record", 48))
     gui.show()
 
