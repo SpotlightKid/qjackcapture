@@ -1067,6 +1067,7 @@ def main(args=None):
                 PROGRAM,
                 "JACK is not available in this system, cannot use this application.",
             ),
+            QMessageBox.Close,
         )
         return 1
 
@@ -1079,6 +1080,7 @@ def main(args=None):
                 "The 'jack_capture' application is not available.\n"
                 "Is not possible to render without it!",
             ),
+            QMessageBox.Close,
         )
         return 2
 
@@ -1101,6 +1103,7 @@ def main(args=None):
                 "See console log for more information.",
             )
             % exc,
+            QMessageBox.Close,
         )
         return 1
 
