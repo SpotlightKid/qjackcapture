@@ -25,7 +25,6 @@
 import argparse
 import logging
 import os
-import queue
 import shlex
 import sys
 from collections import namedtuple
@@ -131,6 +130,7 @@ class QJackCaptureClient(QObject):
         jacklib.PropertyDeleted: "deleted",
     }
     ports_changed = Signal()
+    jack_disconnect = Signal()
 
     def __init__(self, name, connect_interval=3.0, connect_max_attempts=0):
         super().__init__()
@@ -138,7 +138,6 @@ class QJackCaptureClient(QObject):
         self.connect_max_attempts = connect_max_attempts
         self.connect_interval = connect_interval
         self.default_encoding = jacklib.ENCODING
-        self.queue = queue.Queue()
 
         jacklib.set_error_function(self.error_callback)
         self.connect()
@@ -246,12 +245,10 @@ class QJackCaptureClient(QObject):
         self._refresh()
 
     def shutdown_callback(self, *args):
-        """
-        If JACK server signals shutdown, send ``None`` to the queue to cause client to reconnect.
-        """
+        """Emit 'jack_disconnect' signal when JACK server signals shutdown."""
         log.debug("JACK server signalled shutdown.")
         self.client = None
-        self.queue.put(None)
+        self.jack_disconnect.emit()
 
     # ---------------------------------------------------------------------------------------------
     # Port discovery
