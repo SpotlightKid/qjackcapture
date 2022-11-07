@@ -12,7 +12,7 @@ PYRCC ?= pyrcc5
 PYPKG = qjackcapture
 PROGRAM = qjackcapture
 TWINE ?= twine
-ICON = resources/icons/48x48/$(PROGRAM).png
+APP_ICON = resources/icons/scalable/$(PROGRAM).svg
 DESKTOP_FILE = resources/xdg/$(PROGRAM).desktop
 
 # -------------------------------------------------------------------------------------------------
@@ -22,7 +22,9 @@ all: RES UI
 # -------------------------------------------------------------------------------------------------
 # Resources
 
-RES: $(PYPKG)/resources_rc.py
+ICONS = $(wildcard resources/icons/*/*.png resources/icons/scalable/*.svg)
+
+RES: $(PYPKG)/resources_rc.py $(ICONS)
 
 $(PYPKG)/resources_rc.py: resources/resources.qrc
 	$(PYRCC) $< -o $@
@@ -48,8 +50,8 @@ clean:
 # -------------------------------------------------------------------------------------------------
 
 install-data:
-	$(INSTALL) -dm755  $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/48x48/apps
-	$(INSTALL) -m644 $(ICON) $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/48x48/apps
+	$(INSTALL) -dm755  $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/scalable/apps
+	$(INSTALL) -m644 $(APP_ICON) $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/scalable/apps
 	$(INSTALL) -dm755 $(DESTDIR:/=)$(PREFIX)/share/applications
 	$(INSTALL) -m644 $(DESKTOP_FILE) $(DESTDIR:/=)$(PREFIX)/share/applications
 	@if [ -z "$(DESTDIR)" ]; then \
