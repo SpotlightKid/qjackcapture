@@ -8,3 +8,5 @@ Icon=qjackcapture
 Terminal=false
 StartupNotify=false
 Categories=Application;AudioVideo;Audio;
+X-NSM-Capable=true
+X-NSM-Exec=qjackcapture
