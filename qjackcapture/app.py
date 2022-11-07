@@ -69,6 +69,7 @@ except ImportError:
 # -------------------------------------------------------------------------------------------------
 # Application-specific imports
 
+from .nsmclient import NSMClient
 from .ui_mainwindow import Ui_MainWindow
 from .userdirs import get_user_dir
 from .version import __version__
@@ -78,18 +79,15 @@ PROGRAM = "QJackCapture"
 
 log = logging.getLogger(PROGRAM)
 
-# -------------------------------------------------------------------------------------------------
-# Find 'jack_capture' in PATH
-
-gJackCapturePath = None
-for pathdir in os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin").split(os.pathsep):
-    if exists(join(pathdir, "jack_capture")):
-        gJackCapturePath = join(pathdir, "jack_capture")
-        break
-
 
 # -------------------------------------------------------------------------------------------------
 # Custom exceptions
+
+
+class JackConnectError(Exception):
+    """Raised when no connection to JACK server can be established."""
+
+    pass
 
 
 class JackCaptureUnsupportedError(Exception):
@@ -132,9 +130,9 @@ class QJackCaptureClient(QObject):
     ports_changed = Signal()
     jack_disconnect = Signal()
 
-    def __init__(self, name, connect_interval=3.0, connect_max_attempts=0):
+    def __init__(self, client_name, connect_interval=3.0, connect_max_attempts=0):
         super().__init__()
-        self.client_name = name
+        self.client_name = client_name
         self.connect_max_attempts = connect_max_attempts
         self.connect_interval = connect_interval
         self.default_encoding = jacklib.ENCODING
@@ -173,7 +171,7 @@ class QJackCaptureClient(QObject):
                 log.error(
                     "Maximum number (%i) of connection attempts reached. Aborting.", max_attempts
                 )
-                raise RuntimeError(err)
+                raise JackConnectError(err)
 
             log.debug("Waiting %.2f seconds to connect again...", self.connect_interval)
             sleep(self.connect_interval)
@@ -182,7 +180,8 @@ class QJackCaptureClient(QObject):
         if name is not None:
             self.client_name = name.decode()
         else:
-            raise RuntimeError("Could not get JACK client name.")
+            self.close()
+            raise JackConnectError("Could not get JACK client name.")
 
         jacklib.on_shutdown(self.client, self.shutdown_callback, None)
         log.debug(
@@ -197,7 +196,7 @@ class QJackCaptureClient(QObject):
 
     def close(self):
         if self.client:
-            jacklib.deactivate(self.client)
+            log.debug("Closing JACK connection.")
             return jacklib.client_close(self.client)
 
     def _refresh(self):
@@ -247,7 +246,6 @@ class QJackCaptureClient(QObject):
     def shutdown_callback(self, *args):
         """Emit 'jack_disconnect' signal when JACK server signals shutdown."""
         log.debug("JACK server signalled shutdown.")
-        self.client = None
         self.jack_disconnect.emit()
 
     # ---------------------------------------------------------------------------------------------
@@ -311,6 +309,9 @@ class QJackCaptureClient(QObject):
     # ---------------------------------------------------------------------------------------------
     # Delegation methods
 
+    def deactivate(self):
+        return jacklib.deactivate(self.client)
+
     def get_buffer_size(self):
         return int(jacklib.get_buffer_size(self.client))
 
@@ -355,10 +356,12 @@ class QJackCaptureMainWindow(QDialog):
         "32-bit integer": "32",
     }
 
-    def __init__(self, parent, jack_client, jack_name=PROGRAM):
-        QDialog.__init__(self, parent)
+    def __init__(self, app, jack_client):
+        QDialog.__init__(self)
+        self.app = app
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.visible = False
 
         self.fFreewheel = False
         self.fLastTime = -1
@@ -367,7 +370,6 @@ class QJackCaptureMainWindow(QDialog):
         self.fTimer = QTimer(self)
         self.fProcess = QProcess(self)
         self.fJackClient = jack_client
-        self.fJackName = jack_name
 
         self.fBufferSize = self.fJackClient.get_buffer_size()
         self.fSampleRate = self.fJackClient.get_sample_rate()
@@ -376,26 +378,29 @@ class QJackCaptureMainWindow(QDialog):
         self.rec_sources = set()
 
         self.createUi()
-        self.loadSettings()
         self.populatePortLists(init=True)
         self.checkSupportedOptions()
 
         # listen to changes to JACK ports
         self._refresh_timer = None
         self.fJackClient.ports_changed.connect(self.slot_refreshPortsLists)
+        self.fJackClient.jack_disconnect.connect(self.slot_jackDisconnect)
 
     @Slot()
     def slot_refreshPortsLists(self, delay=200):
         if not self._refresh_timer or not self._refresh_timer.isActive():
             log.debug("Scheduling port lists refresh in %i ms...", delay)
-            self._refresh_timer = QTimer()
+
+            if not self._refresh_timer:
+                self._refresh_timer = QTimer()
+
             self._refresh_timer.setSingleShot(True)
             self._refresh_timer.timeout.connect(self.populatePortLists)
             self._refresh_timer.start(delay)
 
     def checkSupportedOptions(self):
         # Get help text to check for existence of options missing in older jack_capture versions
-        self.fProcess.start(gJackCapturePath, ["--help2"])
+        self.fProcess.start(self.app.jackCapturePath, ["--help2"])
         self.fProcess.waitForFinished()
         help_text = str(self.fProcess.readAllStandardOutput(), "utf-8")
         self.supportedOptions = {}
@@ -404,7 +409,7 @@ class QJackCaptureMainWindow(QDialog):
 
     def populateFileFormats(self):
         # Get list of supported file formats
-        self.fProcess.start(gJackCapturePath, ["-pf"])
+        self.fProcess.start(self.app.jackCapturePath, ["-pf"])
         self.fProcess.waitForFinished()
 
         if self.fProcess.exitCode() != 0:
@@ -461,19 +466,19 @@ class QJackCaptureMainWindow(QDialog):
             self.inputs_model, self.ui.tree_inputs, input_ports
         )
 
-        # Remove ports, which are no longer present, from recording sources
-        all_ports = set((p.client, p.name) for p in output_ports)
-        all_ports |= set((p.client, p.name) for p in input_ports)
-        self.rec_sources.intersection_update(all_ports)
         self.slot_toggleRecordingSource()
 
     def makePortTooltip(self, port):
         s = []
+
         if port.pretty_name:
             s.append(f"<b>Pretty name:</b> <em>{port.pretty_name}</em><br>")
+
         s.append(f"<b>Port:</b> <tt>{port.client}:{port.name}</tt><br>")
+
         for i, alias in enumerate(port.aliases, 1):
             s.append(f"<b>Alias {i}:</b> <tt>{alias}</tt><br>")
+
         s.append(f"<b>UUID:</b> <tt>{port.uuid}</tt>")
         return "<small>{}</small>".format("\n".join(s))
 
@@ -482,9 +487,11 @@ class QJackCaptureMainWindow(QDialog):
         root = model.invisibleRootItem()
 
         portsdict = {}
+
         for port in ports:
             if port.client not in portsdict:
                 portsdict[port.client] = []
+
             portsdict[port.client].append(port)
 
         for client in humansorted(portsdict):
@@ -495,6 +502,7 @@ class QJackCaptureMainWindow(QDialog):
 
             for port in portsdict[client]:
                 portspec = (port.client, port.name)
+
                 if port.pretty_name:
                     label = "%s (%s)" % (port.pretty_name, port.name)
                 else:
@@ -506,7 +514,6 @@ class QJackCaptureMainWindow(QDialog):
                 portitem.setUserTristate(False)
                 # Check box toggling is done in the treeview clicked handler "on_port_clicked"
                 portitem.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-
                 portitem.setToolTip(self.makePortTooltip(port))
 
                 if portspec in self.rec_sources:
@@ -695,7 +702,11 @@ class QJackCaptureMainWindow(QDialog):
         # JACK client name
         if self.supportedOptions.get("jack-name"):
             arguments.append("-jn")
-            arguments.append(self.fJackName)
+
+            if self.app.nsmClient:
+                arguments.append(self.app.nsmClient.ourClientNameUnderNSM)
+            else:
+                arguments.append(self.app.jackClientName)
 
         # Filename prefix
         arguments.append("-fp")
@@ -762,7 +773,7 @@ class QJackCaptureMainWindow(QDialog):
             self.fJackClient.transport_locate(minTime * self.fSampleRate)
 
         log.debug("jack_capture command line args: %r", arguments)
-        self.fProcess.start(gJackCapturePath, arguments)
+        self.fProcess.start(self.app.jackCapturePath, arguments)
         status = self.fProcess.waitForStarted()
 
         if not status:
@@ -782,6 +793,11 @@ class QJackCaptureMainWindow(QDialog):
 
     @Slot()
     def slot_renderStop(self):
+        if not self.fProcess.state() in (QProcess.Starting, QProcess.Running):
+            log.debug("No 'jack_capture' process running.")
+            return
+
+        log.debug("Stopping rendering...")
         useTransport = self.ui.group_time.isChecked()
 
         if useTransport:
@@ -791,8 +807,9 @@ class QJackCaptureMainWindow(QDialog):
             self.fJackClient.set_freewheel(False)
             sleep(1)
 
+        log.debug("Terminating 'jack_capture process...")
         self.fProcess.terminate()
-        # self.fProcess.waitForFinished(5000)
+        self.fProcess.waitForFinished(500)
 
         if useTransport:
             self.fTimer.stop()
@@ -894,12 +911,17 @@ class QJackCaptureMainWindow(QDialog):
             enable = False
 
         self.ui.b_render.setEnabled(enable)
-        log.debug(
-            "Recording sources: %s", ", ".join(("%s:%s" % (c, p) for c, p in self.rec_sources))
-        )
 
-    def saveSettings(self):
-        settings = QSettings(ORGANIZATION, PROGRAM)
+    def saveSettings(self, path=None):
+        if path is None:
+            log.debug("Saving user settings.")
+            settings = QSettings()
+        else:
+            log.debug("Saving project settings to '%s'.", path)
+            # For this form of the QSettings constructor, we need to set the
+            # format to QSettings.IniFormat explicitly, even though above we
+            # already did QSettings.setDefaultFormat(QSettings.IniFormat).
+            settings = QSettings(path, QSettings.IniFormat)
 
         if self.ui.rb_mono.isChecked():
             channels = 1
@@ -909,6 +931,7 @@ class QJackCaptureMainWindow(QDialog):
             channels = self.ui.sb_channels.value()
 
         settings.setValue("Geometry", self.saveGeometry())
+        settings.setValue("WindowVisible", self.visible)
         settings.setValue("OutputFolder", self.ui.le_folder.text())
         settings.setValue("FilenamePrefix", self.ui.le_prefix.text())
         settings.setValue("EncodingFormat", self.ui.cb_format.currentText())
@@ -927,24 +950,43 @@ class QJackCaptureMainWindow(QDialog):
             settings.setValue("RecordingSource", 2)
 
         settings.beginWriteArray("Sources")
-        for i, (client, port) in enumerate(self.rec_sources):
-            settings.setArrayIndex(i)
-            settings.setValue("Client", client)
-            settings.setValue("Port", port)
+
+        idx = 0
+        for ports in (self.output_ports, self.input_ports):
+            for client in humansorted(ports):
+                for port in ports[client]:
+                    if (port.client, port.name) in self.rec_sources:
+                        settings.setArrayIndex(idx)
+                        settings.setValue("Client", port.client)
+                        settings.setValue("Port", port.name)
+                        idx += 1
+
         settings.endArray()
 
-    def loadSettings(self):
-        settings = QSettings(ORGANIZATION, PROGRAM)
+    def loadSettings(self, path=None, session_name="jack_capture"):
+        if path is None:
+            log.debug("Loading user settings.")
+            settings = QSettings()
+        else:
+            log.debug("Loading project settings from '%s'.", path)
+            # For this form of the QSettings constructor, we need to set the
+            # format to QSettings.IniFormat explicitly, even though above we
+            # already did QSettings.setDefaultFormat(QSettings.IniFormat).
+            settings = QSettings(path, QSettings.IniFormat)
 
         self.restoreGeometry(settings.value("Geometry", b""))
-
+        self.visible = settings.value("WindowVisible", True, type=bool)
         outputFolder = settings.value("OutputFolder", get_user_dir("MUSIC"))
 
         if isdir(outputFolder):
             self.ui.le_folder.setText(outputFolder)
 
-        self.ui.le_prefix.setText(settings.value("FilenamePrefix", "jack_capture_"))
+        prefix = settings.value("FilenamePrefix", "", type=str)
 
+        if not prefix:
+            prefix = session_name.replace(" ", "_") + "_"
+
+        self.ui.le_prefix.setText(prefix)
         encFormat = settings.value("EncodingFormat", "wav", type=str)
 
         for i in range(self.ui.cb_format.count()):
@@ -981,26 +1023,150 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.group_time.setChecked(settings.value("UseTransport", False, type=bool))
         self.ui.te_start.setTime(settings.value("StartTime", self.ui.te_start.time(), type=QTime))
         self.ui.te_end.setTime(settings.value("EndTime", self.ui.te_end.time(), type=QTime))
-
         self.ui.le_extra_args.setText(settings.value("ExtraArgs", "", type=str))
 
         size = settings.beginReadArray("Sources")
+
         for i in range(size):
             settings.setArrayIndex(i)
             client = settings.value("Client", type=str)
             port = settings.value("Port", type=str)
             if client and port:
                 self.rec_sources.add((client, port))
+
         settings.endArray()
 
-    def closeEvent(self, event):
-        self.saveSettings()
-        self.fJackClient.close()
-        QDialog.closeEvent(self, event)
+        self.populatePortLists()
 
-    def done(self, r):
-        QDialog.done(self, r)
+    @Slot()
+    def slot_jackDisconnect(self):
+        self.shutdown()
+
+    def shutdown(self):
+        log.debug("Deactivating JACK client.")
+        self.fJackClient.deactivate()
+
+        log.debug("Disabling port-change signal handler.")
+        self.fJackClient.ports_changed.disconnect(self.slot_refreshPortsLists)
+
+        if self._refresh_timer is not None and self._refresh_timer.isActive():
+            self._refresh_timer.stop()
+
+        self.slot_renderStop()
+
+        if self.app.nsmClient is None:
+            self.saveSettings()
+
+        self.app.shutdown()
+
+    def closeEvent(self, event=None):
+        if self.app.nsmClient is None:
+            self.shutdown()
+        else:
+            self.app.nsmHideUICallback()
+
+        event.ignore()
+
+    def done(self, result):
+        QDialog.done(self, result)
         self.close()
+
+
+# -------------------------------------------------------------------------------------------------
+# Main Application
+
+
+class QJackCaptureApp(QApplication):
+    def __init__(self, args=None, **settings):
+        """The main application class."""
+        super().__init__(args)
+        self.settings = settings
+        self.jackClientName = settings.get("client_name", PROGRAM)
+        self.setApplicationName(PROGRAM)
+        self.setApplicationVersion(__version__)
+        self.setOrganizationName(ORGANIZATION)
+        QSettings.setDefaultFormat(QSettings.IniFormat)
+        self.setWindowIcon(QIcon(":/icons//scalable/qjackcapture.svg"))
+
+    def initialize(self):
+        if os.getenv("NSM_URL"):
+            self.nsmClient = NSMClient(
+                prettyName=PROGRAM,
+                saveCallback=self.nsmSaveCallback,
+                openOrNewCallback=self.nsmOpenCallback,
+                supportsSaveStatus=False,
+                exitProgramCallback=self.nsmExitCallback,
+                hideGUICallback=self.nsmHideUICallback,
+                showGUICallback=self.nsmShowUICallback,
+                broadcastCallback=None,
+                sessionIsLoadedCallback=None,
+                logLevel=self.settings.get("log_level", logging.INFO),
+            )
+            self.nsmTimer = QTimer()
+            self.nsmTimer.timeout.connect(self.nsmClient.reactToMessage)
+            self.nsmTimer.start(200)
+            self.nsmClient.announceGuiVisibility(self.mainwin.visible)
+
+            if self.mainwin.visible:
+                self.mainwin.show()
+        else:
+            self.nsmClient = None
+            self.createJackClient(self.jackClientName + "/ui")
+            self.createMainWin()
+            self.mainwin.loadSettings()
+            self.mainwin.show()
+
+    def createMainWin(self):
+        self.mainwin = QJackCaptureMainWindow(self, self.jack_client)
+
+    def createJackClient(self, client_name):
+        self.jack_client = QJackCaptureClient(
+            client_name,
+            connect_interval=self.settings.get("connect_interval", 3.0),
+            connect_max_attempts=self.settings.get("connect_max_attempts", 0),
+        )
+
+    def shutdown(self):
+        log.debug("Shutting down.")
+        self.jack_client.close()
+        self.quit()
+
+    def nsmOpenCallback(self, open_path, session_name, client_id):
+        """Session manager tells us to open a project file."""
+        log.debug("nsmOpenCallback: %r, %r, %r", open_path, session_name, client_id)
+        self.createJackClient(client_id + "/ui")
+        self.createMainWin()
+        self.mainwin.loadSettings(path=open_path + ".ini", session_name=session_name)
+
+        try:
+            client_id = client_id.split(".", 1)[1]
+        except IndexError:
+            pass
+
+        window_title = "{}: {} ({})".format(self.mainwin.windowTitle(), session_name, client_id)
+        self.mainwin.setWindowTitle(window_title)
+
+    def nsmSaveCallback(self, save_path, session_name, client_id):
+        """Session manager tells us to save a project file."""
+        log.debug("nsmSaveCallback: %r, %r, %r", save_path, session_name, client_id)
+        self.mainwin.saveSettings(path=save_path + ".ini")
+
+    def nsmExitCallback(self, save_path, session_name, client_id):
+        """Session manager tells us to unconditionally quit."""
+        log.debug("nsmExitCallback: %r, %r, %r", save_path, session_name, client_id)
+        self.mainwin.shutdown()
+
+    def nsmHideUICallback(self):
+        """Session manager tells us to close our UI."""
+        self.mainwin.hide()
+        self.mainwin.visible = False
+        self.nsmClient.announceGuiVisibility(False)
+
+    def nsmShowUICallback(self):
+        """Session manager tells us to open our UI."""
+        self.mainwin.show()
+        self.mainwin.visible = True
+        self.nsmClient.announceGuiVisibility(True)
 
 
 # -------------------------------------------------------------------------------------------------
@@ -1044,16 +1210,16 @@ def main(args=None):
     )
     cargs, args = ap.parse_known_args(args)
 
-    # App initialization
-    app = QApplication(args)
-    app.setApplicationName(PROGRAM)
-    app.setApplicationVersion(__version__)
-    app.setOrganizationName(ORGANIZATION)
-    app.setWindowIcon(QIcon(":/icons//scalable/qjackcapture.svg"))
+    log_level = logging.DEBUG if cargs.debug else logging.INFO
+    logging.basicConfig(level=log_level, format="%(name)s:%(levelname)s: %(message)s")
 
-    logging.basicConfig(
-        level=logging.DEBUG if cargs.debug else logging.INFO,
-        format="%(name)s:%(levelname)s: %(message)s",
+    # App initialization
+    app = QJackCaptureApp(
+        args,
+        log_level=log_level,
+        client_name=cargs.client_name,
+        connect_interval=cargs.connect_interval,
+        connect_max_attempts=cargs.max_attempts,
     )
 
     if jacklib is None:
@@ -1068,7 +1234,15 @@ def main(args=None):
         )
         return 1
 
-    if not gJackCapturePath:
+    # ---------------------------------------------------------------------------------------------
+    # Find 'jack_capture' in PATH
+
+    jackCapturePath = None
+    for pathdir in os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin").split(os.pathsep):
+        if exists(join(pathdir, "jack_capture")):
+            app.jackCapturePath = join(pathdir, "jack_capture")
+            break
+    else:
         QMessageBox.critical(
             None,
             app.translate(PROGRAM, "Error"),
@@ -1082,15 +1256,19 @@ def main(args=None):
         return 2
 
     try:
-        jack_client = QJackCaptureClient(
-            cargs.client_name + "-ui",
-            connect_interval=cargs.connect_interval,
-            connect_max_attempts=cargs.max_attempts,
+        app.initialize()
+    except JackCaptureUnsupportedError as exc:
+        QMessageBox.critical(
+            None,
+            app.translate(PROGRAM, "Error"),
+            app.translate(
+                PROGRAM, "The 'jack_capture' application found is not compatible.\n\nReason: %s"
+            )
+            % exc,
+            QMessageBox.Close,
         )
-    except KeyboardInterrupt:
-        log.info("Aborted.")
-        return 1
-    except Exception as exc:
+        return 3
+    except JackConnectError as exc:
         QMessageBox.critical(
             None,
             app.translate(PROGRAM, "Error"),
@@ -1102,25 +1280,7 @@ def main(args=None):
             % exc,
             QMessageBox.Close,
         )
-        return 1
-
-    # Show GUI
-    try:
-        gui = QJackCaptureMainWindow(None, jack_client, cargs.client_name)
-    except JackCaptureUnsupportedError as exc:
-        QMessageBox.critical(
-            None,
-            app.translate(PROGRAM, "Error"),
-            app.translate(
-                PROGRAM, "The 'jack_capture' application found is not compatible.\n\nReason: %s"
-            )
-            % exc,
-            QMessageBox.Close,
-        )
-        return 1
-
-    gui.setWindowIcon(get_icon("media-record", 48))
-    gui.show()
+        return 4
 
     # Main loop
     return app.exec_()
