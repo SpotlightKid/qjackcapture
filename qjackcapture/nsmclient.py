@@ -392,24 +392,7 @@ class NSMClient(object):
         # true is clean. false means we need saving.
         self.saveStatus = True
 
-        self.announceOurselves()
-
-        assert self.serverFeatures, self.serverFeatures
-        assert self.sessionName, self.sessionName
-        assert self.ourPath, self.ourPath
-        assert self.ourClientNameUnderNSM, self.ourClientNameUnderNSM
-
-        self.sock.setblocking(False)
-        # We have waited for tha handshake. Now switch blocking off because we
-        # expect sock.recvfrom to be empty in 99.99...% of the time so we
-        # shouldn't wait for the answer.
-        # After this point the host must include self.reactToMessage in its
-        # event loop
-
-        # We assume we are save at startup.
-        self.announceSaveStatus(isClean=True)
-
-        logger.info("NSMClient client init complete. Going into listening mode.")
+        logger.info("NSMClient client init complete.")
 
     def reactToMessage(self):
         """This is the main loop message. It is added to the clients event loop."""
@@ -610,6 +593,24 @@ class NSMClient(object):
             raise ValueError(
                 "Unexpected message path after announce: {}".format((msg.oscpath, msg.params))
             )
+
+        assert self.serverFeatures, self.serverFeatures
+        assert self.sessionName, self.sessionName
+        assert self.ourPath, self.ourPath
+        assert self.ourClientNameUnderNSM, self.ourClientNameUnderNSM
+
+        # We assume we are save after initial project load.
+        self.announceSaveStatus(isClean=True)
+
+        # We have waited for that handshake. Now switch blocking off because we
+        # expect sock.recvfrom to be empty in 99.99...% of the time so we
+        # shouldn't wait for the answer.
+        # After this point the host must include self.reactToMessage in its
+        # event loop
+        logger.debug("Going into listening mode.")
+        self.sock.setblocking(False)
+
+        logger.info("NSM handshake and client project loading complete.")
 
     def announceGuiVisibility(self, isVisible):
         message = "/nsm/client/gui_is_shown" if isVisible else "/nsm/client/gui_is_hidden"

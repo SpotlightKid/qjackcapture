@@ -1102,6 +1102,7 @@ class QJackCaptureApp(QApplication):
                 sessionIsLoadedCallback=None,
                 logLevel=self.settings.get("log_level", logging.INFO),
             )
+            self.nsmClient.announceOurselves()
             self.nsmTimer = QTimer()
             self.nsmTimer.timeout.connect(self.nsmClient.reactToMessage)
             self.nsmTimer.start(200)
