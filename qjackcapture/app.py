@@ -831,7 +831,7 @@ class QJackCaptureMainWindow(QDialog):
     @Slot()
     def slot_setStartNow(self):
         time = self.fJackClient.transport_frame() // self.fSampleRate
-        secs = time % 60
+        secs = int(time % 60)
         mins = int(time / 60) % 60
         hrs = int(time / 3600) % 60
         self.ui.te_start.setTime(QTime(hrs, mins, secs))
@@ -839,7 +839,7 @@ class QJackCaptureMainWindow(QDialog):
     @Slot()
     def slot_setEndNow(self):
         time = self.fJackClient.transport_frame() // self.fSampleRate
-        secs = time % 60
+        secs = int(time % 60)
         mins = int(time / 60) % 60
         hrs = int(time / 3600) % 60
         self.ui.te_end.setTime(QTime(hrs, mins, secs))
@@ -880,7 +880,7 @@ class QJackCaptureMainWindow(QDialog):
     @Slot()
     def slot_updateProgressbar(self):
         time = self.fJackClient.transport_frame() / self.fSampleRate
-        self.ui.progressBar.setValue(time)
+        self.ui.progressBar.setValue(int(time))
 
         if time > self.fMaxTime or (self.fLastTime > time and not self.fFreewheel):
             self.slot_renderStop()
