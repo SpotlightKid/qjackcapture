@@ -103,20 +103,20 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lbl_bitdepth">
+         <widget class="QLabel" name="lbl_samplefmt">
           <property name="text">
-           <string>Sam&amp;plesize:</string>
+           <string>Sam&amp;ple format:</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="buddy">
-           <cstring>cb_depth</cstring>
+           <cstring>cb_samplefmt</cstring>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="cb_depth">
+         <widget class="QComboBox" name="cb_samplefmt">
           <item>
            <property name="text">
             <string>8-bit integer</string>
@@ -179,6 +179,9 @@
           </property>
           <property name="minimum">
            <number>3</number>
+          </property>
+          <property name="value">
+           <number>4</number>
           </property>
          </widget>
         </item>
@@ -309,19 +312,6 @@
       <string>Render Options</string>
      </property>
      <layout class="QGridLayout" name="grid_render">
-      <item row="4" column="0">
-       <widget class="QLabel" name="lbl_extra_args">
-        <property name="text">
-         <string>E&amp;xtra Arguments:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>le_extra_args</cstring>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="lbl_output">
         <property name="text">
@@ -335,77 +325,19 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="lbl_render_mode">
-        <property name="text">
-         <string>Render &amp;Mode:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>rb_realtime</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lbl_filename">
-        <property name="text">
-         <string>&amp;Filename prefix:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>le_prefix</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2" colspan="3">
-       <widget class="QLineEdit" name="le_prefix">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2" colspan="3">
-       <widget class="QLineEdit" name="le_extra_args">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Extra command line arguments for jack_capture command.&lt;/p&gt;&lt;p&gt;Separate arguments by spaces, use shell quoting rules.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2" colspan="3">
-       <layout class="QHBoxLayout" name="hbox_output" stretch="0,0">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLineEdit" name="le_folder"/>
-        </item>
-        <item>
-         <widget class="QToolButton" name="b_open">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>:/16x16/document-open.png</normaloff>:/16x16/document-open.png</iconset>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="2" colspan="3">
+      <item row="0" column="2" colspan="2">
        <layout class="QHBoxLayout" name="hbox_rendermode">
         <property name="rightMargin">
          <number>0</number>
         </property>
         <item>
          <widget class="QRadioButton" name="rb_realtime">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Real&amp;time</string>
           </property>
@@ -416,6 +348,12 @@
         </item>
         <item>
          <widget class="QRadioButton" name="rb_freewheel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Free&amp;wheeling</string>
           </property>
@@ -436,6 +374,12 @@
         </item>
         <item>
          <widget class="QComboBox" name="cb_buffer_size">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="editable">
            <bool>true</bool>
           </property>
@@ -489,7 +433,154 @@
           </item>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="lbl_samplerate">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>JACK sample rate:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_srdisplay">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>48000</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
        </layout>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="lbl_render_mode">
+        <property name="text">
+         <string>Render &amp;Mode:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>rb_realtime</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lbl_filename">
+        <property name="text">
+         <string>&amp;Filename prefix:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>cb_prefix</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2" colspan="2">
+       <widget class="QLineEdit" name="le_extra_args">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Extra command line arguments for &lt;span style=&quot; font-family:'monospace';&quot;&gt;jack_capture&lt;/span&gt; command&lt;/p&gt;&lt;p&gt;Separate arguments by spaces, use shell quoting rules.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2" colspan="2">
+       <layout class="QHBoxLayout" name="hbox_output" stretch="0,0">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="le_folder">
+          <property name="toolTip">
+           <string>The directory where the output files are written</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="b_open">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>:/16x16/document-open.png</normaloff>:/16x16/document-open.png</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="lbl_extra_args">
+        <property name="text">
+         <string>E&amp;xtra Arguments:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>le_extra_args</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QComboBox" name="cb_prefix">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="insertPolicy">
+           <enum>QComboBox::InsertAtTop</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="3">
+       <widget class="QPushButton" name="b_prefix_help">
+        <property name="toolTip">
+         <string>Click to open or close the help on this entry</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/16x16/dialog-information.png</normaloff>:/icons/16x16/dialog-information.png</iconset>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -534,9 +625,6 @@
         </property>
         <item>
          <widget class="QRadioButton" name="rb_source_default">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture will record signals from any ports connected to the first two physical outputs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
           <property name="text">
            <string>&amp;Default</string>
           </property>
@@ -547,9 +635,6 @@
         </item>
         <item>
          <widget class="QRadioButton" name="rb_source_manual">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture will not connect to any ports and you need to connect its input ports manually using another program.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
           <property name="text">
            <string>Ma&amp;nual Connections</string>
           </property>
@@ -557,21 +642,8 @@
         </item>
         <item>
          <widget class="QRadioButton" name="rb_source_selected">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture will record signals from the selected output (source) ports or any ports connected to the selected input (sink) ports.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
           <property name="text">
            <string>Selected &amp;Ports</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="icon_source_help">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;jack_capture can connect to any input or output jack port.&lt;/p&gt;&lt;p&gt;When &amp;quot;connecting&amp;quot; to a jack input port (i.e. a writable port), jack_capture constantly monitors which jack ports are connected to that input port, and makes sure jack_capture is always connected to the same ports.&lt;/p&gt;&lt;p&gt;In other words, jack_capture will reconnect its ports automatically during recording to match the connections of the ports.&lt;/p&gt;&lt;p&gt;This is convenient, for instance, when recording the playback ports, since jack_capture can be started first, and then other programs can start and stop at any moment while all sound still should be recorded.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="../resources.qrc">:/icons/16x16/dialog-information.png</pixmap>
           </property>
          </widget>
         </item>
@@ -587,6 +659,20 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="b_sources_help">
+          <property name="toolTip">
+           <string>Click to open or close the help on this section</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/16x16/dialog-information.png</normaloff>:/icons/16x16/dialog-information.png</iconset>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -611,7 +697,16 @@
          <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -639,8 +734,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>418</width>
-              <height>223</height>
+              <width>419</width>
+              <height>253</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -656,7 +751,16 @@
              </size>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_2">
-             <property name="margin">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
               <number>0</number>
              </property>
              <item>
@@ -726,8 +830,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>418</width>
-              <height>223</height>
+              <width>419</width>
+              <height>253</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -743,7 +847,16 @@
              </size>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout">
-             <property name="margin">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
               <number>0</number>
              </property>
              <item>
