@@ -23,8 +23,10 @@
 # Standard library imports
 
 import argparse
+import datetime
 import logging
 import os
+import re
 import shlex
 import sys
 from collections import namedtuple
@@ -32,6 +34,7 @@ from functools import lru_cache, partial
 from operator import attrgetter
 from os.path import exists, expanduser, isdir, join
 from signal import SIGINT, SIGTERM, Signals, signal
+from string import Template
 from time import sleep
 
 # -------------------------------------------------------------------------------------------------
@@ -72,6 +75,8 @@ except ImportError:
 
 from .nsmclient import NSMClient
 from .ui_mainwindow import Ui_MainWindow
+from .ui_prefixhelpwin import Ui_prefixHelpWin
+from .ui_sourceshelpwin import Ui_sourcesHelpWin
 from .userdirs import get_user_dir
 from .version import __version__
 
@@ -99,6 +104,10 @@ class JackCaptureUnsupportedError(Exception):
 
 # -------------------------------------------------------------------------------------------------
 # Utility functions
+
+
+def clean_filename(filename):
+    return re.sub(r"[^a-zA-Z0-9,\_\-\.\(\)]", "_", filename)
 
 
 def get_icon(name, size=16):
@@ -345,11 +354,33 @@ class QJackCaptureClient(QObject):
 
 
 # -------------------------------------------------------------------------------------------------
+# Helper Windows
+
+
+class PrefixHelpWin(QDialog):
+    def __init__(self, *args):
+        QDialog.__init__(self, *args)
+        self.ui = Ui_prefixHelpWin()
+        self.ui.setupUi(self)
+        # self.setWindowFlag(Qt.FramelessWindowHint)
+        self.hide()
+
+
+class SourcesHelpWin(QDialog):
+    def __init__(self, *args):
+        QDialog.__init__(self, *args)
+        self.ui = Ui_sourcesHelpWin()
+        self.ui.setupUi(self)
+        # self.setWindowFlag(Qt.FramelessWindowHint)
+        self.hide()
+
+
+# -------------------------------------------------------------------------------------------------
 # Main Window
 
 
 class QJackCaptureMainWindow(QDialog):
-    sample_formats = {
+    sampleFormats = {
         "32-bit float": "FLOAT",
         "8-bit integer": "8",
         "16-bit integer": "16",
@@ -367,13 +398,11 @@ class QJackCaptureMainWindow(QDialog):
         self.fFreewheel = False
         self.fLastTime = -1
         self.fMaxTime = 600
+        self.maxPrefixHistory = 15
 
         self.fTimer = QTimer(self)
         self.fProcess = QProcess(self)
         self.fJackClient = jack_client
-
-        self.fBufferSize = self.fJackClient.get_buffer_size()
-        self.fSampleRate = self.fJackClient.get_sample_rate()
 
         # Selected ports used as recording sources
         self.rec_sources = set()
@@ -387,6 +416,14 @@ class QJackCaptureMainWindow(QDialog):
         self.fJackClient.ports_changed.connect(self.slot_refreshPortsLists)
         self.fJackClient.jack_disconnect.connect(self.slot_jackDisconnect)
 
+    @property
+    def fSampleRate(self):
+        return self.fJackClient.get_sample_rate()
+
+    @property
+    def fBufferSize(self):
+        return self.fJackClient.get_buffer_size()
+
     @Slot()
     def slot_refreshPortsLists(self, delay=200):
         if not self._refresh_timer or not self._refresh_timer.isActive():
@@ -398,6 +435,72 @@ class QJackCaptureMainWindow(QDialog):
             self._refresh_timer.setSingleShot(True)
             self._refresh_timer.timeout.connect(self.populatePortLists)
             self._refresh_timer.start(delay)
+
+    def _makeSubstitutions(self, **extra_data):
+        utcnow = datetime.datetime.now(datetime.timezone.utc)
+        sampleformat = self.ui.cb_samplefmt.currentData()
+        subst = dict(
+            channels="1"
+            if self.ui.rb_mono.isChecked()
+            else ("2" if self.ui.rb_stereo.isChecked() else str(self.ui.sb_channels.value())),
+            fileformat=self.ui.cb_format.currentText(),
+            sampleformat="f32" if sampleformat == "FLOAT" else f"i{sampleformat}",
+            samplerate=str(self.fSampleRate),
+            clientname=self.app.jackClientName,
+            **extra_data,
+        )
+
+        if self.app.nsmClient is not None:
+            subst.update(
+                dict(
+                    session=self.app.nsmClient.sessionName,
+                    clientid=self.app.nsmClient.ourClientId,
+                    clientname=self.app.nsmClient.ourClientNameUnderNSM,
+                )
+            )
+
+        for dt, key_prefix in ((utcnow.astimezone(), ""), (utcnow, "utc")):
+            fmt = dt.strftime
+            data = dict(
+                isodate=dt.date().today().isoformat(),
+                ctime=str(int(dt.timestamp())),
+                date=fmt("%Y%m%d"),
+                timestamp=fmt("%Y%m%d-%H%M%S"),
+                year=fmt("%Y"),
+                month=fmt("%m"),
+                day=fmt("%d"),
+                hour=fmt("%H"),
+                minute=fmt("%M"),
+                second=fmt("%S"),
+                hm=fmt("%H%M"),
+                hms=fmt("%H%M%S"),
+            )
+            subst.update({key_prefix + k: v for k, v in data.items()})
+
+        return subst
+
+    def _genFilenamePrefix(self):
+        tmpl = Template(self.ui.cb_prefix.currentText())
+        substitutions = self._makeSubstitutions()
+        log.debug("Filename prefix substitutions: %r", substitutions)
+
+        try:
+            prefix = tmpl.substitute(substitutions)
+            success = True
+        except Exception as exc:
+            success = False
+            log.warning("Could not format filename prefix template: %s", exc)
+            prefix = tmpl.safe_substitute(substitutions)
+
+        return prefix, success
+
+    def _updateCbPrefixHistory(self):
+        prefix_tmpl = self.ui.cb_prefix.currentText()
+
+        if self.ui.cb_prefix.findData(prefix_tmpl) == -1:
+            # Add to filename prefix combo-box history
+            self.ui.cb_prefix.insertItem(0, prefix_tmpl)
+            self.ui.cb_prefix.setMaxCount(self.maxPrefixHistory)
 
     def checkSupportedOptions(self):
         # Get help text to check for existence of options missing in older jack_capture versions
@@ -442,12 +545,12 @@ class QJackCaptureMainWindow(QDialog):
 
     def populateSampleFormats(self):
         # Put all sample formats in combo-box, select 'FLOAT' option
-        self.ui.cb_depth.clear()
-        for i, (label, fmt) in enumerate(self.sample_formats.items()):
-            self.ui.cb_depth.addItem(label, fmt)
+        self.ui.cb_samplefmt.clear()
+        for i, (label, fmt) in enumerate(self.sampleFormats.items()):
+            self.ui.cb_samplefmt.addItem(label, fmt)
 
             if fmt == "FLOAT":
-                self.ui.cb_depth.setCurrentIndex(i)
+                self.ui.cb_samplefmt.setCurrentIndex(i)
 
     def populatePortLists(self, init=False):
         log.debug("Populating port lists (init=%s)...", init)
@@ -542,6 +645,7 @@ class QJackCaptureMainWindow(QDialog):
         self.populateFileFormats()
         self.populateSampleFormats()
 
+        self.ui.lbl_srdisplay.setText(str(self.fSampleRate))
         self.ui.rb_stereo.setChecked(True)
         self.ui.te_end.setTime(QTime(0, 10, 0))
         self.ui.progressBar.setFormat("")
@@ -554,7 +658,9 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.b_close.setIcon(get_icon("window-close"))
         self.ui.b_open.setIcon(get_icon("document-open"))
         self.ui.b_stop.setVisible(False)
-        self.ui.le_folder.setText(expanduser("~"))
+
+        self.prefixHelpWin = PrefixHelpWin(self)
+        self.sourcesHelpWin = SourcesHelpWin(self)
 
         # -------------------------------------------------------------
         # Set-up connections
@@ -570,6 +676,9 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.rb_source_default.toggled.connect(self.slot_toggleRecordingSource)
         self.ui.rb_source_manual.toggled.connect(self.slot_toggleRecordingSource)
         self.ui.rb_source_selected.toggled.connect(self.slot_toggleRecordingSource)
+        self.ui.cb_prefix.currentTextChanged.connect(self.slot_cbPrefixChanged)
+        self.ui.b_prefix_help.clicked.connect(self.slot_togglePrefixHelp)
+        self.ui.b_sources_help.clicked.connect(self.slot_toggleSourcesHelp)
         self.fTimer.timeout.connect(self.slot_updateProgressbar)
 
         for tv in (self.ui.tree_outputs, self.ui.tree_inputs):
@@ -709,18 +818,6 @@ class QJackCaptureMainWindow(QDialog):
             else:
                 arguments.append(self.app.jackClientName)
 
-        # Filename prefix
-        arguments.append("-fp")
-        arguments.append(self.ui.le_prefix.text())
-
-        # File format
-        arguments.append("-f")
-        arguments.append(self.ui.cb_format.currentText())
-
-        # Sanple format (bit depth, int/float)
-        arguments.append("-b")
-        arguments.append(self.ui.cb_depth.currentData())
-
         # Channels
         arguments.append("-c")
         if self.ui.rb_mono.isChecked():
@@ -729,6 +826,19 @@ class QJackCaptureMainWindow(QDialog):
             arguments.append("2")
         else:
             arguments.append(str(self.ui.sb_channels.value()))
+
+        # File format
+        arguments.append("-f")
+        arguments.append(self.ui.cb_format.currentText())
+
+        # Sample format (bit depth, int/float)
+        arguments.append("-b")
+        arguments.append(self.ui.cb_samplefmt.currentData())
+
+        # Filename prefix
+        arguments.append("-fp")
+        prefix, prefix_valid = self._genFilenamePrefix()
+        arguments.append(clean_filename(prefix))
 
         # Recording sources
         if self.ui.rb_source_manual.isChecked():
@@ -791,6 +901,9 @@ class QJackCaptureMainWindow(QDialog):
             log.info("Rendering using JACK transport.")
             self.fTimer.start()
             self.fJackClient.transport_start()
+
+        if prefix_valid:
+            self._updateCbPrefixHistory()
 
     @Slot()
     def slot_renderStop(self):
@@ -902,6 +1015,33 @@ class QJackCaptureMainWindow(QDialog):
 
         self.fLastTime = time
 
+    @Slot(str)
+    def slot_cbPrefixChanged(self, text):
+        log.debug("Filename prefix template changed: %s", text)
+        prefix, valid = self._genFilenamePrefix()
+        self.ui.cb_prefix.setToolTip(
+            self.tr("Current filename prefix: %s") % clean_filename(prefix)
+        )
+
+        if not valid:
+            self.ui.cb_prefix.lineEdit().setStyleSheet("background-color: orange")
+        else:
+            self.ui.cb_prefix.lineEdit().setStyleSheet("")
+
+    @Slot()
+    def slot_togglePrefixHelp(self):
+        if self.prefixHelpWin.isVisible():
+            self.prefixHelpWin.hide()
+        else:
+            self.prefixHelpWin.show()
+
+    @Slot()
+    def slot_toggleSourcesHelp(self):
+        if self.sourcesHelpWin.isVisible():
+            self.sourcesHelpWin.hide()
+        else:
+            self.sourcesHelpWin.show()
+
     def checkRecordEnable(self):
         enable = True
 
@@ -934,9 +1074,9 @@ class QJackCaptureMainWindow(QDialog):
         settings.setValue("Geometry", self.saveGeometry())
         settings.setValue("WindowVisible", self.visible)
         settings.setValue("OutputFolder", self.ui.le_folder.text())
-        settings.setValue("FilenamePrefix", self.ui.le_prefix.text())
+        settings.setValue("FilenamePrefix", self.ui.cb_prefix.currentText())
         settings.setValue("EncodingFormat", self.ui.cb_format.currentText())
-        settings.setValue("EncodingDepth", self.ui.cb_depth.currentData())
+        settings.setValue("EncodingDepth", self.ui.cb_samplefmt.currentData())
         settings.setValue("EncodingChannels", channels)
         settings.setValue("UseTransport", self.ui.group_time.isChecked())
         settings.setValue("StartTime", self.ui.te_start.time())
@@ -964,7 +1104,15 @@ class QJackCaptureMainWindow(QDialog):
 
         settings.endArray()
 
-    def loadSettings(self, path=None, session_name="jack_capture"):
+        settings.beginWriteArray("FilenamePrefixHistory")
+
+        for idx in range(self.ui.cb_prefix.count()):
+            settings.setArrayIndex(idx)
+            settings.setValue("Entry", self.ui.cb_prefix.itemText(idx))
+
+        settings.endArray()
+
+    def loadSettings(self, path=None):
         if path is None:
             log.debug("Loading user settings.")
             settings = QSettings()
@@ -976,18 +1124,19 @@ class QJackCaptureMainWindow(QDialog):
             settings = QSettings(path, QSettings.IniFormat)
 
         self.restoreGeometry(settings.value("Geometry", b""))
-        self.visible = settings.value("WindowVisible", self.app.nsmClient is None, type=bool)
+        self.visible = settings.value("WindowVisible", True, type=bool)
         outputFolder = settings.value("OutputFolder", get_user_dir("MUSIC"))
 
         if isdir(outputFolder):
             self.ui.le_folder.setText(outputFolder)
 
-        prefix = settings.value("FilenamePrefix", "", type=str)
+        if self.app.nsmClient is None:
+            fallback = "${clientname}-${timestamp}-"
+        else:
+            fallback = "${session}-${timestamp}-"
 
-        if not prefix:
-            prefix = session_name.replace(" ", "_") + "_"
+        self.ui.cb_prefix.setCurrentText(settings.value("FilenamePrefix", fallback, type=str))
 
-        self.ui.le_prefix.setText(prefix)
         encFormat = settings.value("EncodingFormat", "wav", type=str)
 
         for i in range(self.ui.cb_format.count()):
@@ -997,9 +1146,9 @@ class QJackCaptureMainWindow(QDialog):
 
         encDepth = settings.value("EncodingDepth", "FLOAT", type=str)
 
-        for i in range(self.ui.cb_depth.count()):
-            if self.ui.cb_depth.itemData(i) == encDepth:
-                self.ui.cb_depth.setCurrentIndex(i)
+        for i in range(self.ui.cb_samplefmt.count()):
+            if self.ui.cb_samplefmt.itemData(i) == encDepth:
+                self.ui.cb_samplefmt.setCurrentIndex(i)
                 break
 
         encChannels = settings.value("EncodingChannels", 2, type=int)
@@ -1028,14 +1177,25 @@ class QJackCaptureMainWindow(QDialog):
 
         size = settings.beginReadArray("Sources")
 
-        for i in range(size):
-            settings.setArrayIndex(i)
+        for idx in range(size):
+            settings.setArrayIndex(idx)
             client = settings.value("Client", type=str)
             port = settings.value("Port", type=str)
             if client and port:
                 self.rec_sources.add((client, port))
 
         settings.endArray()
+
+        history = []
+        size = settings.beginReadArray("FilenamePrefixHistory")
+
+        for idx in range(size):
+            settings.setArrayIndex(idx)
+            history.append(settings.value("Entry", type=str))
+
+        settings.endArray()
+
+        self.ui.cb_prefix.addItems(history)
 
         self.populatePortLists()
 
@@ -1160,13 +1320,8 @@ class QJackCaptureApp(QApplication):
         log.debug("nsmOpenCallback: %r, %r, %r", open_path, session_name, client_id)
         self.createJackClient(client_id + "/ui")
         self.createMainWin()
-        self.mainwin.loadSettings(path=open_path + ".ini", session_name=session_name)
-
-        try:
-            client_id = client_id.split(".", 1)[1]
-        except IndexError:
-            pass
-
+        self.mainwin.loadSettings(path=open_path + ".ini")
+        client_id = client_id.rsplit(".", 1)[-1]
         window_title = "{}: {} ({})".format(self.mainwin.windowTitle(), session_name, client_id)
         self.mainwin.setWindowTitle(window_title)
 
