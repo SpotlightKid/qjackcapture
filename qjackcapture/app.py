@@ -365,7 +365,7 @@ class QJackCaptureMainWindow(QDialog):
 
         self.fFreewheel = False
         self.fLastTime = -1
-        self.fMaxTime = 180
+        self.fMaxTime = 600
 
         self.fTimer = QTimer(self)
         self.fProcess = QProcess(self)
@@ -538,7 +538,7 @@ class QJackCaptureMainWindow(QDialog):
         self.populateSampleFormats()
 
         self.ui.rb_stereo.setChecked(True)
-        self.ui.te_end.setTime(QTime(0, 3, 0))
+        self.ui.te_end.setTime(QTime(0, 10, 0))
         self.ui.progressBar.setFormat("")
         self.ui.progressBar.setMinimum(0)
         self.ui.progressBar.setMaximum(1)
