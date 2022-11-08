@@ -2,6 +2,7 @@ include CHANGELOG.md
 include LICENSE
 include Makefile
 include README.md
+exclude .gitignore
 recursive-include resources/screenshots *.png
 recursive-include resources/xdg *.desktop
 recursive-include resources/icons *.png *.svg
