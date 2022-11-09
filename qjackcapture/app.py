@@ -47,6 +47,7 @@ from natsort import humansorted
 
 try:
     from qtpy.QtCore import (
+        QLocale,
         QModelIndex,
         QObject,
         QProcess,
@@ -54,13 +55,24 @@ try:
         Qt,
         QTime,
         QTimer,
+        QTranslator,
         Signal,
         Slot,
     )
     from qtpy.QtGui import QIcon, QStandardItem, QStandardItemModel
     from qtpy.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
 except ImportError:
-    from PyQt5.QtCore import QModelIndex, QObject, QProcess, QSettings, Qt, QTime, QTimer
+    from PyQt5.QtCore import (
+        QLocale,
+        QModelIndex,
+        QObject,
+        QProcess,
+        QSettings,
+        Qt,
+        QTime,
+        QTimer,
+        QTranslator
+    )
     from PyQt5.QtCore import pyqtSignal as Signal
     from PyQt5.QtCore import pyqtSlot as Slot
     from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
@@ -1222,6 +1234,18 @@ def main(args=None):
         connect_interval=cargs.connect_interval,
         connect_max_attempts=cargs.max_attempts,
     )
+
+    # Translation process
+    app_translator = QTranslator()
+    if app_translator.load(
+            QLocale(), PROGRAM.lower(),
+            '_', 
+            os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])),
+                         'share',
+                         PROGRAM.lower(),
+                         'locale')
+            ):
+        app.installTranslator(app_translator)
 
     if jacklib is None:
         QMessageBox.critical(
