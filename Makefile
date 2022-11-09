@@ -15,9 +15,18 @@ TWINE ?= twine
 APP_ICON = resources/icons/scalable/$(PROGRAM).svg
 DESKTOP_FILE = resources/xdg/$(PROGRAM).desktop
 
+LRELEASE := lrelease
+ifeq (, $(shell which $(LRELEASE)))
+ LRELEASE := lrelease-qt5
+endif
+
+ifeq (, $(shell which $(LRELEASE)))
+ LRELEASE := lrelease-qt4
+endif
+
 # -------------------------------------------------------------------------------------------------
 
-all: RES UI
+all: RES LOCALE UI
 
 # -------------------------------------------------------------------------------------------------
 # Resources
@@ -28,6 +37,17 @@ RES: $(PYPKG)/resources_rc.py $(ICONS)
 
 $(PYPKG)/resources_rc.py: resources/resources.qrc
 	$(PYRCC) $< -o $@
+
+# -------------------------------------------------------------------------------------------------
+# Localisations
+
+LOCALE: locale
+
+locale: locale/qjackcapture_en.qm \
+		locale/qjackcapture_fr.qm \
+
+locale/%.qm: locale/%.ts
+	$(LRELEASE) $< -qm $@
 
 # -------------------------------------------------------------------------------------------------
 # UI code
@@ -65,6 +85,14 @@ install-data:
 		echo "Updating icon cache..."; \
 		gtk-update-icon-cache -q $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor; \
 	fi
+
+	# install Localisations
+	$(INSTALL) -dm755 $(DESTDIR:/=)$(PREFIX)/share/$(PROGRAM)
+	$(INSTALL) -dm755 $(DESTDIR:/=)$(PREFIX)/share/$(PROGRAM)/locale
+	$(INSTALL) -m 644 locale/$(PROGRAM)_en.qm \
+		$(DESTDIR:/=)$(PREFIX)/share/$(PROGRAM)/locale
+	$(INSTALL) -m 644 locale/$(PROGRAM)_fr.qm \
+		$(DESTDIR:/=)$(PREFIX)/share/$(PROGRAM)/locale
 
 install: install-data
 	$(PYTHON) setup.py install --prefix=$(PREFIX) --root=$(DESTDIR)

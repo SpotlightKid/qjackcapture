@@ -51,6 +51,8 @@ from natsort import humansorted
 
 try:
     from qtpy.QtCore import (
+        QLibraryInfo,
+        QLocale,
         QModelIndex,
         QObject,
         QProcess,
@@ -58,13 +60,25 @@ try:
         Qt,
         QTime,
         QTimer,
+        QTranslator,
         Signal,
         Slot,
     )
     from qtpy.QtGui import QIcon, QStandardItem, QStandardItemModel
     from qtpy.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
 except ImportError:
-    from PyQt5.QtCore import QModelIndex, QObject, QProcess, QSettings, Qt, QTime, QTimer
+    from PyQt5.QtCore import (
+        QLibraryInfo,
+        QLocale,
+        QModelIndex,
+        QObject,
+        QProcess,
+        QSettings,
+        Qt,
+        QTime,
+        QTimer,
+        QTranslator
+    )
     from PyQt5.QtCore import pyqtSignal as Signal
     from PyQt5.QtCore import pyqtSlot as Slot
     from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
@@ -1403,6 +1417,27 @@ def main(args=None):
         connect_interval=cargs.connect_interval,
         connect_max_attempts=cargs.max_attempts,
     )
+
+    # Translation process
+    app_translator = QTranslator()
+    if app_translator.load(
+            QLocale(), PROGRAM.lower(),
+            '_', 
+            os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])),
+                         'share',
+                         PROGRAM.lower(),
+                         'locale')
+            ):
+        app.installTranslator(app_translator)
+        
+        # install Qt base translator for file picker
+        # only if app_translator has found a language
+        # to prevent languages inconsistence
+        # (for example, only "close" buttons translated). 
+        sys_translator = QTranslator()
+        path_sys_translations = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
+        if sys_translator.load(QLocale(), 'qt', '_', path_sys_translations):
+            app.installTranslator(sys_translator)
 
     if jacklib is None:
         QMessageBox.critical(
