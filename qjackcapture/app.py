@@ -31,6 +31,7 @@ from collections import namedtuple
 from functools import lru_cache, partial
 from operator import attrgetter
 from os.path import exists, expanduser, isdir, join
+from signal import SIGINT, SIGTERM, Signals, signal
 from time import sleep
 
 # -------------------------------------------------------------------------------------------------
@@ -356,12 +357,12 @@ class QJackCaptureMainWindow(QDialog):
         "32-bit integer": "32",
     }
 
-    def __init__(self, app, jack_client):
+    def __init__(self, app, jack_client, visible=True):
         QDialog.__init__(self)
         self.app = app
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.visible = False
+        self.visible = visible
 
         self.fFreewheel = False
         self.fLastTime = -1
@@ -975,7 +976,7 @@ class QJackCaptureMainWindow(QDialog):
             settings = QSettings(path, QSettings.IniFormat)
 
         self.restoreGeometry(settings.value("Geometry", b""))
-        self.visible = settings.value("WindowVisible", True, type=bool)
+        self.visible = settings.value("WindowVisible", self.app.nsmClient is None, type=bool)
         outputFolder = settings.value("OutputFolder", get_user_dir("MUSIC"))
 
         if isdir(outputFolder):
@@ -1089,6 +1090,8 @@ class QJackCaptureApp(QApplication):
         self.setWindowIcon(QIcon(":/icons//scalable/qjackcapture.svg"))
 
     def initialize(self):
+        self.mainTimer = QTimer()
+
         if os.getenv("NSM_URL"):
             self.nsmClient = NSMClient(
                 prettyName=PROGRAM,
@@ -1103,24 +1106,31 @@ class QJackCaptureApp(QApplication):
                 logLevel=self.settings.get("log_level", logging.INFO),
             )
             self.nsmClient.announceOurselves()
-            self.nsmTimer = QTimer()
-            self.nsmTimer.timeout.connect(self.nsmClient.reactToMessage)
-            self.nsmTimer.start(200)
+            self.mainTimer.timeout.connect(self.nsmClient.reactToMessage)
             self.nsmClient.announceGuiVisibility(self.mainwin.visible)
-
-            if self.mainwin.visible:
-                self.mainwin.show()
         else:
             self.nsmClient = None
             self.createJackClient(self.jackClientName + "/ui")
             self.createMainWin()
             self.mainwin.loadSettings()
+            log.debug("Attaching POSIX signal handlers...")
+            signal(SIGINT, self.posixSignalHandler)
+            signal(SIGTERM, self.posixSignalHandler)
+            # Give Python interpreter a chance to handle signals every now and then
+            self.mainTimer.timeout.connect(lambda *args: None)
+
+        self.mainTimer.start(200)
+
+        log.debug("Window visible: %s", "yes" if self.mainwin.visible else "no")
+        if self.mainwin.visible:
             self.mainwin.show()
 
     def createMainWin(self):
+        log.debug("Creating application main window...")
         self.mainwin = QJackCaptureMainWindow(self, self.jack_client)
 
     def createJackClient(self, client_name):
+        log.debug("Creating JACK client...")
         self.jack_client = QJackCaptureClient(
             client_name,
             connect_interval=self.settings.get("connect_interval", 3.0),
@@ -1131,6 +1141,19 @@ class QJackCaptureApp(QApplication):
         log.debug("Shutting down.")
         self.jack_client.close()
         self.quit()
+
+    # ---------------------------------------------------------------------------------------------
+    # POSIX Signal Callbacks
+
+    def posixSignalHandler(self, sig, frame):
+        log.debug("Received signal %s. Closing application.", Signals(sig).name)
+        if self.mainTimer.isActive():
+            self.mainTimer.stop()
+
+        self.mainwin.shutdown()
+
+    # ---------------------------------------------------------------------------------------------
+    # NSM Callbacks
 
     def nsmOpenCallback(self, open_path, session_name, client_id):
         """Session manager tells us to open a project file."""
@@ -1155,6 +1178,9 @@ class QJackCaptureApp(QApplication):
     def nsmExitCallback(self, save_path, session_name, client_id):
         """Session manager tells us to unconditionally quit."""
         log.debug("nsmExitCallback: %r, %r, %r", save_path, session_name, client_id)
+        if self.mainTimer.isActive():
+            self.mainTimer.stop()
+
         self.mainwin.shutdown()
 
     def nsmHideUICallback(self):
