@@ -575,7 +575,7 @@ class NSMClient(object):
             msg = _IncomingMessage(data)
             assert msg.oscpath == "/nsm/client/open", msg.oscpath
             self.ourPath, self.sessionName, self.ourClientNameUnderNSM = msg.params
-            self.ourClientId = os.path.splitext(self.ourClientNameUnderNSM)[1][1:]
+            self.ourClientId = self.ourClientNameUnderNSM.rsplit(".", 1)[-1]
             logger.info(
                 "Got '/nsm/client/open' from NSM. "
                 "Telling our client to load or create a file with name {}".format(self.ourPath)
