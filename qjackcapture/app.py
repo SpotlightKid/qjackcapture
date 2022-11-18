@@ -51,6 +51,7 @@ from natsort import humansorted
 
 try:
     from qtpy.QtCore import (
+        QLibraryInfo,
         QLocale,
         QModelIndex,
         QObject,
@@ -67,6 +68,7 @@ try:
     from qtpy.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
 except ImportError:
     from PyQt5.QtCore import (
+        QLibraryInfo,
         QLocale,
         QModelIndex,
         QObject,
@@ -1427,6 +1429,15 @@ def main(args=None):
                          'locale')
             ):
         app.installTranslator(app_translator)
+        
+        # install Qt base translator for file picker
+        # only if app_translator has found a language
+        # to prevent languages inconsistence
+        # (for example, only "close" buttons translated). 
+        sys_translator = QTranslator()
+        path_sys_translations = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
+        if sys_translator.load(QLocale(), 'qt', '_', path_sys_translations):
+            app.installTranslator(sys_translator)
 
     if jacklib is None:
         QMessageBox.critical(
