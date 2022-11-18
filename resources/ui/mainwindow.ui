@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>JACK Capture</string>
   </property>
+  <property name="toolTip">
+   <string>The directory where the output files are written</string>
+  </property>
   <layout class="QGridLayout" name="gridLayout_3">
    <item row="4" column="0" colspan="2">
     <widget class="Line" name="line">
@@ -300,285 +303,6 @@
        <widget class="QPushButton" name="b_now_end">
         <property name="text">
          <string>now</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QGroupBox" name="group_render">
-     <property name="title">
-      <string>Render Options</string>
-     </property>
-     <layout class="QGridLayout" name="grid_render">
-      <item row="2" column="0">
-       <widget class="QLabel" name="lbl_output">
-        <property name="text">
-         <string>&amp;Output folder:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>le_folder</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" colspan="2">
-       <layout class="QHBoxLayout" name="hbox_rendermode">
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QRadioButton" name="rb_realtime">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Real&amp;time</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="rb_freewheel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Free&amp;wheeling</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="lbl_bufsize">
-          <property name="text">
-           <string>&amp;Buffer Size:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="buddy">
-           <cstring>cb_buffer_size</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="cb_buffer_size">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-          <property name="frame">
-           <bool>true</bool>
-          </property>
-          <item>
-           <property name="text">
-            <string>32</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>64</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>128</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>256</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>512</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>1024</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>2048</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>4096</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>8192</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="lbl_samplerate">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>JACK sample rate:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="lbl_srdisplay">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <italic>false</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>48000</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="lbl_render_mode">
-        <property name="text">
-         <string>Render &amp;Mode:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>rb_realtime</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lbl_filename">
-        <property name="text">
-         <string>&amp;Filename prefix:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>cb_prefix</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2" colspan="2">
-       <widget class="QLineEdit" name="le_extra_args">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Extra command line arguments for &lt;span style=&quot; font-family:'monospace';&quot;&gt;jack_capture&lt;/span&gt; command&lt;/p&gt;&lt;p&gt;Separate arguments by spaces, use shell quoting rules.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2" colspan="2">
-       <layout class="QHBoxLayout" name="hbox_output" stretch="0,0">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLineEdit" name="le_folder">
-          <property name="toolTip">
-           <string>The directory where the output files are written</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="b_open">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>:/16x16/document-open.png</normaloff>:/16x16/document-open.png</iconset>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="lbl_extra_args">
-        <property name="text">
-         <string>E&amp;xtra Arguments:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>le_extra_args</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QComboBox" name="cb_prefix">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-          <property name="insertPolicy">
-           <enum>QComboBox::InsertAtTop</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="3" column="3">
-       <widget class="QPushButton" name="b_prefix_help">
-        <property name="toolTip">
-         <string>Click to open or close the help on this entry</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../resources.qrc">
-          <normaloff>:/icons/16x16/dialog-information.png</normaloff>:/icons/16x16/dialog-information.png</iconset>
         </property>
        </widget>
       </item>
@@ -904,6 +628,306 @@
         </layout>
         <zorder>scroll_inputs</zorder>
         <zorder>scroll_outputs</zorder>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QGroupBox" name="group_render">
+     <property name="title">
+      <string>Render Options</string>
+     </property>
+     <layout class="QGridLayout" name="grid_render">
+      <item row="4" column="0">
+       <widget class="QLabel" name="lbl_extra_args">
+        <property name="text">
+         <string>E&amp;xtra Arguments:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>le_extra_args</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="hbox_folder" stretch="0,0">
+        <item>
+         <widget class="QComboBox" name="cb_folder">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="insertPolicy">
+           <enum>QComboBox::InsertAtTop</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="b_folder">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Click to select output folder</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/16x16/document-open.png</normaloff>:/icons/16x16/document-open.png</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lbl_output">
+        <property name="text">
+         <string>&amp;Output folder:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>cb_folder</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lbl_filename">
+        <property name="text">
+         <string>&amp;Filename prefix:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>cb_prefix</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="lbl_render_mode">
+        <property name="text">
+         <string>Render &amp;Mode:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>rb_realtime</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="hbox_rendermode">
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QRadioButton" name="rb_realtime">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Real&amp;time</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rb_freewheel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Free&amp;wheeling</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_bufsize">
+          <property name="text">
+           <string>&amp;Buffer Size:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring>cb_buffer_size</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cb_buffer_size">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <item>
+           <property name="text">
+            <string>32</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>64</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>128</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>256</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>512</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1024</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2048</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>4096</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>8192</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_samplerate">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>JACK sample rate:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_srdisplay">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>48000</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="1">
+       <layout class="QHBoxLayout" name="hbox_prefix">
+        <item>
+         <widget class="QComboBox" name="cb_prefix">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="insertPolicy">
+           <enum>QComboBox::InsertAtTop</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="b_prefix_help">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Click to open or close the help on this entry</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/16x16/dialog-information.png</normaloff>:/icons/16x16/dialog-information.png</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="le_extra_args">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Extra command line arguments for &lt;span style=&quot; font-family:'monospace';&quot;&gt;jack_capture&lt;/span&gt; command&lt;/p&gt;&lt;p&gt;Separate arguments by spaces, use shell quoting rules.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
        </widget>
       </item>
      </layout>

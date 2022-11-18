@@ -672,7 +672,7 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.b_render.setIcon(get_icon("media-record"))
         self.ui.b_stop.setIcon(get_icon("media-playback-stop"))
         self.ui.b_close.setIcon(get_icon("window-close"))
-        self.ui.b_open.setIcon(get_icon("document-open"))
+        self.ui.b_folder.setIcon(get_icon("document-open"))
         self.ui.b_stop.setVisible(False)
 
         self.prefixHelpWin = PrefixHelpWin(self)
@@ -683,7 +683,7 @@ class QJackCaptureMainWindow(QDialog):
 
         self.ui.b_render.clicked.connect(self.slot_renderStart)
         self.ui.b_stop.clicked.connect(self.slot_renderStop)
-        self.ui.b_open.clicked.connect(self.slot_getAndSetPath)
+        self.ui.b_folder.clicked.connect(self.slot_getAndSetPath)
         self.ui.b_now_start.clicked.connect(self.slot_setStartNow)
         self.ui.b_now_end.clicked.connect(self.slot_setEndNow)
         self.ui.te_start.timeChanged.connect(self.slot_updateStartTime)
@@ -778,7 +778,7 @@ class QJackCaptureMainWindow(QDialog):
 
     @Slot()
     def slot_renderStart(self):
-        if not exists(self.ui.le_folder.text()):
+        if not exists(self.ui.cb_folder.currentText()):
             QMessageBox.warning(
                 self,
                 self.tr("Warning"),
@@ -886,7 +886,7 @@ class QJackCaptureMainWindow(QDialog):
             arguments.extend(arg_list)
 
         # Change current directory
-        os.chdir(self.ui.le_folder.text())
+        os.chdir(self.ui.cb_folder.currentText())
 
         if newBufferSize != self.fJackClient.get_buffer_size():
             log.info("Buffer size changed before render.")
@@ -966,11 +966,11 @@ class QJackCaptureMainWindow(QDialog):
     @Slot()
     def slot_getAndSetPath(self):
         new_path = QFileDialog.getExistingDirectory(
-            self, self.tr("Set Path"), self.ui.le_folder.text(), QFileDialog.ShowDirsOnly
+            self, self.tr("Set Path"), self.ui.cb_folder.currentText(), QFileDialog.ShowDirsOnly
         )
 
         if new_path:
-            self.ui.le_folder.setText(new_path)
+            self.ui.cb_folder.setCurrentText(new_path)
 
     @Slot()
     def slot_setStartNow(self):
@@ -1089,7 +1089,7 @@ class QJackCaptureMainWindow(QDialog):
 
         settings.setValue("Geometry", self.saveGeometry())
         settings.setValue("WindowVisible", self.visible)
-        settings.setValue("OutputFolder", self.ui.le_folder.text())
+        settings.setValue("OutputFolder", self.ui.cb_folder.currentText())
         settings.setValue("FilenamePrefix", self.ui.cb_prefix.currentText())
         settings.setValue("EncodingFormat", self.ui.cb_format.currentText())
         settings.setValue("EncodingDepth", self.ui.cb_samplefmt.currentData())
@@ -1144,7 +1144,7 @@ class QJackCaptureMainWindow(QDialog):
         outputFolder = settings.value("OutputFolder", get_user_dir("MUSIC"))
 
         if isdir(outputFolder):
-            self.ui.le_folder.setText(outputFolder)
+            self.ui.cb_folder.setCurrentText(outputFolder)
 
         if self.app.nsmClient is None:
             fallback = "${clientname}-${timestamp}-"
