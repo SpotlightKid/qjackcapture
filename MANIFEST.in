@@ -3,8 +3,9 @@ include LICENSE
 include Makefile
 include README.md
 exclude .gitignore
-recursive-include resources/screenshots *.png
-recursive-include resources/xdg *.desktop
+recursive-include resources *.qrc *.pro
 recursive-include resources/icons *.png *.svg
-recursive-include resources *.qrc
+recursive-include resources/locale *.ts *.qm
+recursive-include resources/screenshots *.png
 recursive-include resources/ui *.ui
+recursive-include resources/xdg *.desktop

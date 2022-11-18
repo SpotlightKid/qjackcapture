@@ -14,5 +14,7 @@
     <file>icons/16x16/window-close.png</file>
     <file>icons/48x48/qjackcapture.png</file>
     <file>icons/scalable/qjackcapture.svg</file>
+    <file>locale/qjackcapture_en.qm</file>
+    <file>locale/qjackcapture_fr.qm</file>
   </qresource>
 </RCC>

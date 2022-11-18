@@ -26,28 +26,27 @@ endif
 
 # -------------------------------------------------------------------------------------------------
 
-all: RES LOCALE UI
+all: RES UI
+
+# -------------------------------------------------------------------------------------------------
+# Localisations
+
+TRANSLATIONS = \
+	resources/locale/qjackcapture_en.qm \
+	resources/locale/qjackcapture_fr.qm
+
+resources/locale/%.qm: resources/locale/%.ts
+	$(LRELEASE) $< -qm $@
 
 # -------------------------------------------------------------------------------------------------
 # Resources
 
 ICONS = $(wildcard resources/icons/*/*.png resources/icons/scalable/*.svg)
 
-RES: $(PYPKG)/resources_rc.py $(ICONS)
+RES: $(PYPKG)/resources_rc.py
 
-$(PYPKG)/resources_rc.py: resources/resources.qrc
+$(PYPKG)/resources_rc.py: resources/resources.qrc $(ICONS) $(TRANSLATIONS)
 	$(PYRCC) $< -o $@
-
-# -------------------------------------------------------------------------------------------------
-# Localisations
-
-LOCALE: locale
-
-locale: locale/qjackcapture_en.qm \
-		locale/qjackcapture_fr.qm \
-
-locale/%.qm: locale/%.ts
-	$(LRELEASE) $< -qm $@
 
 # -------------------------------------------------------------------------------------------------
 # UI code
@@ -72,7 +71,7 @@ clean:
 
 # -------------------------------------------------------------------------------------------------
 
-install-data:
+install-data: all
 	$(INSTALL) -dm755  $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/scalable/apps
 	$(INSTALL) -m644 $(APP_ICON) $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor/scalable/apps
 	$(INSTALL) -dm755 $(DESTDIR:/=)$(PREFIX)/share/applications
@@ -85,14 +84,6 @@ install-data:
 		echo "Updating icon cache..."; \
 		gtk-update-icon-cache -q $(DESTDIR:/=)$(PREFIX)/share/icons/hicolor; \
 	fi
-
-	# install Localisations
-	$(INSTALL) -dm755 $(DESTDIR:/=)$(PREFIX)/share/$(PROGRAM)
-	$(INSTALL) -dm755 $(DESTDIR:/=)$(PREFIX)/share/$(PROGRAM)/locale
-	$(INSTALL) -m 644 locale/$(PROGRAM)_en.qm \
-		$(DESTDIR:/=)$(PREFIX)/share/$(PROGRAM)/locale
-	$(INSTALL) -m 644 locale/$(PROGRAM)_fr.qm \
-		$(DESTDIR:/=)$(PREFIX)/share/$(PROGRAM)/locale
 
 install: install-data
 	$(PYTHON) setup.py install --prefix=$(PREFIX) --root=$(DESTDIR)
@@ -109,13 +100,13 @@ uninstall:
 
 dist: sdist wheel
 
-sdist: RES UI
+sdist: all
 	$(PYTHON) -m build --sdist
 
-wheel: RES UI
+wheel: all
 	$(PYTHON) -m build --wheel
 
-release: sdist wheel
+release: dist
 
 pypi-upload: release
 	$(TWINE) upload --skip-existing dist/*.tar.gz dist/*.whl

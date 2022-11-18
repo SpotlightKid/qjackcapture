@@ -3,7 +3,7 @@ qjackcapture/*_rc.py
 qjackcapture/ui_*.py
 
 # Translation Qt Files
-locale/*.qm
+resources/locale/*.qm
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
