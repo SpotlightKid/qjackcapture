@@ -509,12 +509,14 @@ class QJackCaptureMainWindow(QDialog):
         return prefix, success
 
     def _updateCbPrefixHistory(self):
-        prefix_tmpl = self.ui.cb_prefix.currentText()
+        cb_prefix = self.ui.cb_prefix
+        prefix_tmpl = cb_prefix.currentText()
 
-        if self.ui.cb_prefix.findData(prefix_tmpl) == -1:
+        if cb_prefix.findText(prefix_tmpl) == -1:
             # Add to filename prefix combo-box history
-            self.ui.cb_prefix.insertItem(0, prefix_tmpl)
-            self.ui.cb_prefix.setMaxCount(self.maxPrefixHistory)
+            cb_prefix.insertItem(0, prefix_tmpl)
+
+        cb_prefix.setMaxCount(self.maxPrefixHistory)
 
     def checkSupportedOptions(self):
         # Get help text to check for existence of options missing in older jack_capture versions
