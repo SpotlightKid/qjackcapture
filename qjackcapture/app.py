@@ -56,6 +56,7 @@ try:
         QModelIndex,
         QObject,
         QProcess,
+        QProcessEnvironment,
         QSettings,
         Qt,
         QTime,
@@ -73,6 +74,7 @@ except ImportError:
         QModelIndex,
         QObject,
         QProcess,
+        QProcessEnvironment,
         QSettings,
         Qt,
         QTime,
@@ -570,7 +572,10 @@ class QJackCaptureMainWindow(QDialog):
 
     def checkSupportedOptions(self):
         # Get help text to check for existence of options missing in older jack_capture versions
-        proc = QProcess()
+        proc = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        env.insert("LC_ALL", "C")
+        proc.setProcessEnvironment(env)
         proc.start(self.app.jackCapturePath, ["--help2"])
         proc.waitForFinished(self.processTimeout)
         help_text = str(proc.readAllStandardOutput(), "utf-8")
@@ -581,7 +586,10 @@ class QJackCaptureMainWindow(QDialog):
 
     def populateFileFormats(self):
         """Get and save list of supported file formats."""
-        proc = QProcess()
+        proc = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        env.insert("LC_ALL", "C")
+        proc.setProcessEnvironment(env)
         proc.start(self.app.jackCapturePath, ["-pf"])
         proc.waitForFinished(self.processTimeout)
 
@@ -964,9 +972,6 @@ class QJackCaptureMainWindow(QDialog):
             arg_list = shlex.split(extra_args)
             arguments.extend(arg_list)
 
-        # Change current directory
-        os.chdir(output_folder)
-
         if newBufferSize != self.jackClient.get_buffer_size():
             log.info("Buffer size changed before render.")
             self.jackClient.set_buffer_size(newBufferSize)
@@ -977,6 +982,9 @@ class QJackCaptureMainWindow(QDialog):
                 self.jackClient.transport_stop()
 
             self.jackClient.transport_locate(recStartTime * self.sampleRate)
+
+        # Change working directory for jack_capture process
+        self.jackCaptureProcess.setWorkingDirectory(output_folder)
 
         log.debug("'jack_capture' command line args: %r", arguments)
         self.jackCaptureProcess.start(self.app.jackCapturePath, arguments)
