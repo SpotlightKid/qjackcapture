@@ -1,6 +1,6 @@
 
 FORMS += ui/sourceshelpwin.ui
-FORMS += ui/prefixhelpwin.ui
+FORMS += ui/outputhelpwin.ui
 FORMS += ui/mainwindow.ui
 
 SOURCES += ../qjackcapture/app.py

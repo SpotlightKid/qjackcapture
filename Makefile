@@ -55,7 +55,7 @@ UI: qjackcapture
 
 qjackcapture: \
 	$(PYPKG)/ui_mainwindow.py \
-	$(PYPKG)/ui_prefixhelpwin.py \
+	$(PYPKG)/ui_outputhelpwin.py \
 	$(PYPKG)/ui_sourceshelpwin.py \
 	$(PYPKG)/app.py \
 	$(PYPKG)/__main__.py \
