@@ -907,7 +907,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Click to open or close the help on this entry</string>
+           <string>Click to open or close the help on these options</string>
           </property>
           <property name="text">
            <string/>
