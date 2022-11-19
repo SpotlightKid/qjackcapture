@@ -3,6 +3,7 @@ Version=1.0
 Type=Application
 Name=QJackCapture
 Comment=A GUI for easy recording of JACK audio sources using jack_capture
+Comment[fr]=Une interface graphique utilisant jack_capture pour l'enregistrement facile de sources audio JACK 
 Exec=qjackcapture
 Icon=qjackcapture
 Terminal=false
