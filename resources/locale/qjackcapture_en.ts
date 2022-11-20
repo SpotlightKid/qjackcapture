@@ -9,287 +9,282 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="30"/>
+        <location filename="../ui/mainwindow.ui" line="27"/>
         <source>Output File Encoding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="36"/>
+        <location filename="../ui/mainwindow.ui" line="33"/>
         <source>Format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="46"/>
+        <location filename="../ui/mainwindow.ui" line="43"/>
         <source>Channels:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="64"/>
+        <location filename="../ui/mainwindow.ui" line="61"/>
         <source>Filet&amp;ype:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="78"/>
+        <location filename="../ui/mainwindow.ui" line="75"/>
         <source>aiff</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="83"/>
+        <location filename="../ui/mainwindow.ui" line="80"/>
         <source>flac</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="88"/>
+        <location filename="../ui/mainwindow.ui" line="85"/>
         <source>mp3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="93"/>
+        <location filename="../ui/mainwindow.ui" line="90"/>
         <source>ogg</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="98"/>
+        <location filename="../ui/mainwindow.ui" line="95"/>
         <source>opus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="103"/>
+        <location filename="../ui/mainwindow.ui" line="100"/>
         <source>wav</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="111"/>
+        <location filename="../ui/mainwindow.ui" line="108"/>
         <source>Sam&amp;ple format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="125"/>
+        <location filename="../ui/mainwindow.ui" line="122"/>
         <source>8-bit integer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="130"/>
+        <location filename="../ui/mainwindow.ui" line="127"/>
         <source>16-bit integer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="135"/>
+        <location filename="../ui/mainwindow.ui" line="132"/>
         <source>24-bit integer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="140"/>
+        <location filename="../ui/mainwindow.ui" line="137"/>
         <source>32-bit integer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="145"/>
+        <location filename="../ui/mainwindow.ui" line="142"/>
         <source>32-bit float</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="160"/>
+        <location filename="../ui/mainwindow.ui" line="157"/>
         <source>&amp;Mono</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="167"/>
+        <location filename="../ui/mainwindow.ui" line="164"/>
         <source>St&amp;ereo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="174"/>
+        <location filename="../ui/mainwindow.ui" line="171"/>
         <source>Mu&amp;lti:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="214"/>
+        <location filename="../ui/mainwindow.ui" line="211"/>
         <source>&amp;Record</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="225"/>
+        <location filename="../ui/mainwindow.ui" line="222"/>
         <source>&amp;Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="236"/>
+        <location filename="../ui/mainwindow.ui" line="233"/>
         <source>&amp;Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="249"/>
+        <location filename="../ui/mainwindow.ui" line="246"/>
         <source>&amp;Use Transport</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="258"/>
+        <location filename="../ui/mainwindow.ui" line="255"/>
         <source>St&amp;art Time:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="291"/>
+        <location filename="../ui/mainwindow.ui" line="288"/>
         <source>hh:mm:ss</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="278"/>
+        <location filename="../ui/mainwindow.ui" line="275"/>
         <source>&amp;End Time:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="305"/>
+        <location filename="../ui/mainwindow.ui" line="302"/>
         <source>now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="639"/>
+        <location filename="../ui/mainwindow.ui" line="636"/>
         <source>Render Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="645"/>
+        <location filename="../ui/mainwindow.ui" line="642"/>
         <source>E&amp;xtra Arguments:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="698"/>
+        <location filename="../ui/mainwindow.ui" line="695"/>
         <source>&amp;Output folder:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="724"/>
+        <location filename="../ui/mainwindow.ui" line="721"/>
         <source>Render &amp;Mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="711"/>
+        <location filename="../ui/mainwindow.ui" line="708"/>
         <source>&amp;Filename prefix:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="748"/>
+        <location filename="../ui/mainwindow.ui" line="745"/>
         <source>Real&amp;time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="764"/>
+        <location filename="../ui/mainwindow.ui" line="761"/>
         <source>Free&amp;wheeling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="771"/>
+        <location filename="../ui/mainwindow.ui" line="768"/>
         <source>&amp;Buffer Size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="797"/>
+        <location filename="../ui/mainwindow.ui" line="794"/>
         <source>32</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="802"/>
+        <location filename="../ui/mainwindow.ui" line="799"/>
         <source>64</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="807"/>
+        <location filename="../ui/mainwindow.ui" line="804"/>
         <source>128</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="812"/>
+        <location filename="../ui/mainwindow.ui" line="809"/>
         <source>256</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="817"/>
+        <location filename="../ui/mainwindow.ui" line="814"/>
         <source>512</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="822"/>
+        <location filename="../ui/mainwindow.ui" line="819"/>
         <source>1024</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="827"/>
+        <location filename="../ui/mainwindow.ui" line="824"/>
         <source>2048</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="832"/>
+        <location filename="../ui/mainwindow.ui" line="829"/>
         <source>4096</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="837"/>
+        <location filename="../ui/mainwindow.ui" line="834"/>
         <source>8192</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="327"/>
+        <location filename="../ui/mainwindow.ui" line="324"/>
         <source>Recording Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="353"/>
+        <location filename="../ui/mainwindow.ui" line="350"/>
         <source>&amp;Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="363"/>
+        <location filename="../ui/mainwindow.ui" line="360"/>
         <source>Ma&amp;nual Connections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="370"/>
+        <location filename="../ui/mainwindow.ui" line="367"/>
         <source>Selected &amp;Ports</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="493"/>
+        <location filename="../ui/mainwindow.ui" line="490"/>
         <source>Outputs (Sources):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="589"/>
+        <location filename="../ui/mainwindow.ui" line="586"/>
         <source>Inputs (Sinks):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="851"/>
+        <location filename="../ui/mainwindow.ui" line="848"/>
         <source>JACK sample rate:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="874"/>
+        <location filename="../ui/mainwindow.ui" line="871"/>
         <source>48000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="926"/>
+        <location filename="../ui/mainwindow.ui" line="923"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Extra command line arguments for &lt;span style=&quot; font-family:&apos;monospace&apos;;&quot;&gt;jack_capture&lt;/span&gt; command&lt;/p&gt;&lt;p&gt;Separate arguments by spaces, use shell quoting rules.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="17"/>
-        <source>The directory where the output files are written</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/mainwindow.ui" line="390"/>
+        <location filename="../ui/mainwindow.ui" line="387"/>
         <source>Click to open or close the help on this section</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="682"/>
+        <location filename="../ui/mainwindow.ui" line="679"/>
         <source>Click to select output folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.ui" line="910"/>
+        <location filename="../ui/mainwindow.ui" line="907"/>
         <source>Click to open or close the help on these options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -297,67 +292,67 @@
 <context>
     <name>QJackCaptureMainWindow</name>
     <message>
-        <location filename="../../qjackcapture/app.py" line="589"/>
+        <location filename="../../qjackcapture/app.py" line="597"/>
         <source>Could not get list of supported output formats from jack_capture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="604"/>
+        <location filename="../../qjackcapture/app.py" line="612"/>
         <source>List of supported output formats reported by jack_capture is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="757"/>
+        <location filename="../../qjackcapture/app.py" line="765"/>
         <source>E&amp;xpand all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="758"/>
+        <location filename="../../qjackcapture/app.py" line="766"/>
         <source>&amp;Collapse all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="760"/>
+        <location filename="../../qjackcapture/app.py" line="768"/>
         <source>&amp;Select all in group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="765"/>
+        <location filename="../../qjackcapture/app.py" line="773"/>
         <source>&amp;Unselect all in group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="772"/>
+        <location filename="../../qjackcapture/app.py" line="780"/>
         <source>Unselect all &amp;outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="778"/>
+        <location filename="../../qjackcapture/app.py" line="786"/>
         <source>Unselect all &amp;inputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="1050"/>
+        <location filename="../../qjackcapture/app.py" line="1058"/>
         <source>Set Path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="1133"/>
+        <location filename="../../qjackcapture/app.py" line="1141"/>
         <source>Current filename prefix: %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="1120"/>
+        <location filename="../../qjackcapture/app.py" line="1128"/>
         <source>Current output folder: %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="847"/>
+        <location filename="../../qjackcapture/app.py" line="855"/>
         <source>Missing output folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="847"/>
+        <location filename="../../qjackcapture/app.py" line="855"/>
         <source>The selected output folder does not exist:
 
 {}
@@ -366,12 +361,12 @@ Create it now and proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="863"/>
+        <location filename="../../qjackcapture/app.py" line="871"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="863"/>
+        <location filename="../../qjackcapture/app.py" line="871"/>
         <source>Invalid output folder:
 
 {}

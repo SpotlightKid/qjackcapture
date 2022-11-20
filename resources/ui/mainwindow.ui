@@ -13,9 +13,6 @@
   <property name="windowTitle">
    <string>JACK Capture</string>
   </property>
-  <property name="toolTip">
-   <string>The directory where the output files are written</string>
-  </property>
   <layout class="QGridLayout" name="gridLayout_3">
    <item row="4" column="0" colspan="2">
     <widget class="Line" name="line">
