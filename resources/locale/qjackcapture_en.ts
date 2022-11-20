@@ -297,67 +297,67 @@
 <context>
     <name>QJackCaptureMainWindow</name>
     <message>
-        <location filename="../../qjackcapture/app.py" line="589"/>
+        <location filename="../../qjackcapture/app.py" line="597"/>
         <source>Could not get list of supported output formats from jack_capture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="604"/>
+        <location filename="../../qjackcapture/app.py" line="612"/>
         <source>List of supported output formats reported by jack_capture is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="757"/>
+        <location filename="../../qjackcapture/app.py" line="765"/>
         <source>E&amp;xpand all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="758"/>
+        <location filename="../../qjackcapture/app.py" line="766"/>
         <source>&amp;Collapse all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="760"/>
+        <location filename="../../qjackcapture/app.py" line="768"/>
         <source>&amp;Select all in group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="765"/>
+        <location filename="../../qjackcapture/app.py" line="773"/>
         <source>&amp;Unselect all in group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="772"/>
+        <location filename="../../qjackcapture/app.py" line="780"/>
         <source>Unselect all &amp;outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="778"/>
+        <location filename="../../qjackcapture/app.py" line="786"/>
         <source>Unselect all &amp;inputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="1050"/>
+        <location filename="../../qjackcapture/app.py" line="1058"/>
         <source>Set Path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="1133"/>
+        <location filename="../../qjackcapture/app.py" line="1141"/>
         <source>Current filename prefix: %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="1120"/>
+        <location filename="../../qjackcapture/app.py" line="1128"/>
         <source>Current output folder: %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="847"/>
+        <location filename="../../qjackcapture/app.py" line="855"/>
         <source>Missing output folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="847"/>
+        <location filename="../../qjackcapture/app.py" line="855"/>
         <source>The selected output folder does not exist:
 
 {}
@@ -366,12 +366,12 @@ Create it now and proceed?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="863"/>
+        <location filename="../../qjackcapture/app.py" line="871"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../qjackcapture/app.py" line="863"/>
+        <location filename="../../qjackcapture/app.py" line="871"/>
         <source>Invalid output folder:
 
 {}
@@ -400,7 +400,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Placeholders, whose names start with &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;&amp;quot;nsm&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; are only available when running in an NSM session. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Standard output folders&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;: &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;These placeholders are only valid for the &amp;quot;Output folder&amp;quot; field. See also: &lt;/span&gt;&lt;a href=&quot;https://www.freedesktop.org/wiki/Software/xdg-user-dirs/&quot;&gt;&lt;span style=&quot; font-size:12pt; text-decoration: underline; color:#0000ff;&quot;&gt;XDG user directories&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${nsmclientdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - client directory within the NSM session directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${desktopdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user desktop directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${downloaddir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user download directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${documentsdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user music directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${musicdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user music directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${picturesdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user pictures directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${videosdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user video directory&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${nsmclientdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - client directory within the NSM session directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${desktopdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user desktop directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${downloaddir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user download directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${documentsdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user documents directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${musicdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user music directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${picturesdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user pictures directory&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${videosdir}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - localized XDG user video directory&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;The placeholders below are valid in the both the &amp;quot;Output folder&amp;quot; and &amp;quot;Filename prefix&amp;quot;  fields.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Output file parameters&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;: &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${channels}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - selected number of audio channels&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${fileformat}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - selected audio file type&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${sampleformat}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - selected sample format &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;(i8, i16, i24, i32, f32)&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;monospace&apos;; font-size:12pt;&quot;&gt;${samplerate}&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; - JACK server and output file sample rate&lt;/span&gt;&lt;/p&gt;
