@@ -30,6 +30,7 @@ import re
 import shlex
 import sys
 from collections import namedtuple
+from enum import IntEnum
 from functools import lru_cache, partial
 from operator import attrgetter
 from os.path import exists, expanduser, isdir, join, sep as pathsep
@@ -129,6 +130,20 @@ class JackCaptureUnsupportedError(Exception):
 
 
 # -------------------------------------------------------------------------------------------------
+# Types
+
+JackPort = namedtuple(
+    "JackPort", ["client", "group", "order", "name", "pretty_name", "uuid", "aliases"]
+)
+
+
+class RecordingStatus(IntEnum):
+    STOPPED = 1
+    RECORDING = 2
+    STOPPING = 3
+
+
+# -------------------------------------------------------------------------------------------------
 # Utility functions
 
 
@@ -153,10 +168,6 @@ def posnum(arg):
 # -------------------------------------------------------------------------------------------------
 # JACK client
 
-JackPort = namedtuple(
-    "JackPort", ["client", "group", "order", "name", "pretty_name", "uuid", "aliases"]
-)
-
 
 class QJackCaptureClient(QObject):
     PROPERTY_CHANGE_MAP = {
@@ -166,6 +177,7 @@ class QJackCaptureClient(QObject):
     }
     ports_changed = Signal()
     jack_disconnect = Signal()
+    freewheel = Signal(int)
 
     def __init__(self, client_name, connect_interval=3.0, connect_max_attempts=0):
         super().__init__()
@@ -229,6 +241,7 @@ class QJackCaptureClient(QObject):
         jacklib.set_port_registration_callback(self.client, self.port_reg_callback, None)
         jacklib.set_port_rename_callback(self.client, self.port_rename_callback, None)
         jacklib.set_property_change_callback(self.client, self.property_callback, None)
+        jacklib.set_freewheel_callback(self.client, self.freewheel_callback, None)
         jacklib.activate(self.client)
 
     def close(self):
@@ -246,6 +259,10 @@ class QJackCaptureClient(QObject):
     def error_callback(self, error):
         error = error.decode(self.default_encoding, errors="ignore")
         log.debug(error)
+
+    def freewheel_callback(self, freewheel, *args):
+        log.debug("JACK freewheel mode changed to: %i", freewheel)
+        self.freewheel.emit(freewheel)
 
     def property_callback(self, subject, name, type_, *args):
         if name is not None:
@@ -422,6 +439,8 @@ class QJackCaptureMainWindow(QDialog):
         self.ui.setupUi(self)
         self.visible = visible
 
+        self.recordingStatus = RecordingStatus.STOPPED
+        self.freewheelStatus = False
         self.useFreewheel = False
         self.useTransport = False
         self.lastUpdateTime = -1
@@ -430,6 +449,7 @@ class QJackCaptureMainWindow(QDialog):
         self.maxPrefixHistory = 15
         self.processTimeout = 3000
 
+        self.refreshTimer = None
         self.progressTimer = QTimer(self)
         self.jackCaptureProcess = QProcess(self)
 
@@ -441,9 +461,10 @@ class QJackCaptureMainWindow(QDialog):
         self.checkSupportedOptions()
 
         # listen to changes to JACK ports
-        self._refreshTimer = None
         self.jackClient.ports_changed.connect(self.slot_refreshPortsLists)
         self.jackClient.jack_disconnect.connect(self.slot_jackDisconnect)
+        self.jackClient.freewheel.connect(self.slot_freewheelChanged)
+        self.jackCaptureProcess.finished.connect(self.slot_jackCaptureExit)
 
     @property
     def jackClient(self):
@@ -459,15 +480,15 @@ class QJackCaptureMainWindow(QDialog):
 
     @Slot()
     def slot_refreshPortsLists(self, delay=200):
-        if not self._refreshTimer or not self._refreshTimer.isActive():
+        if not self.refreshTimer or not self.refreshTimer.isActive():
             log.debug("Scheduling port lists refresh in %i ms...", delay)
 
-            if not self._refreshTimer:
-                self._refreshTimer = QTimer()
+            if not self.refreshTimer:
+                self.refreshTimer = QTimer()
 
-            self._refreshTimer.setSingleShot(True)
-            self._refreshTimer.timeout.connect(self.populatePortLists)
-            self._refreshTimer.start(delay)
+            self.refreshTimer.setSingleShot(True)
+            self.refreshTimer.timeout.connect(self.populatePortLists)
+            self.refreshTimer.start(delay)
 
     def _makeSubstitutions(self, **extra_data):
         utcnow = datetime.datetime.now(datetime.timezone.utc)
@@ -995,6 +1016,8 @@ class QJackCaptureMainWindow(QDialog):
             log.error("Could not start 'jack_capture'.")
             return
 
+        self.recordingStatus = RecordingStatus.RECORDING
+
         if self.useFreewheel:
             log.info("Rendering in freewheel mode.")
             sleep(1)
@@ -1012,25 +1035,54 @@ class QJackCaptureMainWindow(QDialog):
         if prefix_valid:
             self._updateCbPrefixHistory()
 
+    @Slot(int, QProcess.ExitStatus)
+    def slot_jackCaptureExit(self, exit_code, exit_status):
+        log.debug(
+            "'jack_capture' terminated with exit code %i, status = %r", exit_code, exit_status
+        )
+        if self.recordingStatus is RecordingStatus.RECORDING:
+            self.beforeRecordingStop()
+
+        if self.recordingStatus in (RecordingStatus.RECORDING, RecordingStatus.STOPPING):
+            self.afterRecordingStop()
+
     @Slot()
     def slot_renderStop(self):
         if not self.jackCaptureProcess.state() in (QProcess.Starting, QProcess.Running):
             log.debug("No 'jack_capture' process running.")
             return
 
-        log.debug("Stopping rendering...")
-
-        if self.useTransport:
-            self.jackClient.transport_stop()
-
-        if self.useFreewheel:
-            self.jackClient.set_freewheel(False)
-            sleep(1)
+        log.debug("Stopping recording...")
+        self.beforeRecordingStop()
 
         log.debug("Terminating 'jack_capture' process...")
         self.jackCaptureProcess.terminate()
-        self.jackCaptureProcess.waitForFinished(500)
 
+    @Slot(int)
+    def slot_freewheelChanged(self, freewheel):
+        self.freewheelStatus = freewheel
+
+        if (
+            not freewheel
+            and self.useFreewheel
+            and self.recordingStatus is RecordingStatus.RECORDING
+        ):
+            self.slot_renderStop()
+
+    def beforeRecordingStop(self):
+        self.recordingStatus = RecordingStatus.STOPPING
+
+        if self.useTransport and self.jackClient.transport_running():
+            log.debug("Stopping JACK transport.")
+            self.jackClient.transport_stop()
+
+        if self.useFreewheel and self.freewheelStatus:
+            log.debug("Leaving JACK Freewheel mode.")
+            self.jackClient.set_freewheel(False)
+            sleep(1)
+
+    def afterRecordingStop(self):
+        log.debug("Cleaning up after recording stop...")
         if self.useTransport:
             self.progressTimer.stop()
 
@@ -1052,6 +1104,8 @@ class QJackCaptureMainWindow(QDialog):
 
         if newBufferSize != self.bufferSize:
             self.jackClient.set_buffer_size(newBufferSize)
+
+        self.recordingStatus = RecordingStatus.STOPPED
 
     @Slot()
     def slot_getAndSetPath(self):
@@ -1351,8 +1405,8 @@ class QJackCaptureMainWindow(QDialog):
         log.debug("Disabling port-change signal handler.")
         self.jackClient.ports_changed.disconnect(self.slot_refreshPortsLists)
 
-        if self._refreshTimer is not None and self._refreshTimer.isActive():
-            self._refreshTimer.stop()
+        if self.refreshTimer is not None and self.refreshTimer.isActive():
+            self.refreshTimer.stop()
 
         self.slot_renderStop()
 
